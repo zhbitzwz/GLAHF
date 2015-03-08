@@ -7,6 +7,15 @@ class DragLine(QtGui.QLabel):
         self.TYPE = TYPE
         self._xpos = self._ypos = 0
         self._info = None
+        self.__callback = None
+
+    @property
+    def callback(self):
+        return self.__callback
+    @callback.setter
+    def callback(self, function):
+        if callable(function):
+            self.__callback = function
 
     @property
     def info(self):
@@ -52,6 +61,10 @@ class DragLine(QtGui.QLabel):
 
     def mouseReleaseEvent(self, e):
         pass
+
+    def closeEvent(self,e):
+        self.__callback(self._info)
+        print "close"
 
     def __str__(self):
         return self.info

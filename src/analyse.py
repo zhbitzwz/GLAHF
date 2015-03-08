@@ -41,9 +41,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         Ui_MainWindow.FOCUS = "start"
         self.vis = None
         self.spliced_img = None
-        self.linesArr = linesArr
-        self.vDraglines = []
-        self.hDraglines = []
+        self.__linesArr = linesArr
+        self.__vDraglines = []
+        self.__hDraglines = []
         self.units = units
         self.setupUi(self)
         self.retranslateUi(self)
@@ -232,9 +232,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.retranslateUi(MainWindow)
 
-        if self.linesArr is not None and len(self.linesArr) != 0:
-            VLines = [i for i in self.linesArr if i.get('y')==0 and i.get('x')>0.1]
-            HLines = [i for i in self.linesArr if i.get('x')==0 and i.get('y')>0.1]
+        if self.__linesArr is not None and len(self.__linesArr) != 0:
+            VLines = [i for i in self.__linesArr if i.get('y')==0 and i.get('x')>0.1]
+            HLines = [i for i in self.__linesArr if i.get('x')==0 and i.get('y')>0.1]
             VLines = sorted(VLines,key=lambda item:item.get('x'))
             HLines = sorted(HLines,key=lambda item:item.get('y'))
 
@@ -247,35 +247,59 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 dragline = DragLine('', self, 'V')
                 dragline.setText(key)
                 dragline.info = key
+                dragline.callback = self.__closeline_callback
                 dragline.xpos = round((pos-self.PREIVIEW_TOLEFT+self.LINE_WEIGHT/2)/float(self.PREIVIEW_W),3)
                 dragline.setGeometry(pos, self.PREIVIEW_TOTOP, self.LINE_WEIGHT, self.PREIVIEW_H)
                 dragline.setStyleSheet("background-color:red;color:white;")
-                self.vDraglines.append(dragline)
+                self.__vDraglines.append(dragline)
 
             for line,key in zip(HLines,HKey):
                 pos = line.get('y')*self.PREIVIEW_H + self.PREIVIEW_TOTOP
                 dragline = DragLine('', self, 'H')
                 dragline.setText(key)
                 dragline.info = key
+                dragline.callback = self.__closeline_callback
                 dragline.ypos = round((pos-self.PREIVIEW_TOTOP+self.LINE_WEIGHT/2)/float(self.PREIVIEW_H),3)
                 dragline.setGeometry(self.PREIVIEW_TOLEFT, pos, self.PREIVIEW_W, self.LINE_WEIGHT)
                 dragline.setStyleSheet("background-color:red;color:white;")
-                self.hDraglines.append(dragline)
+                self.__hDraglines.append(dragline)
 
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def __closeline_callback(self,key):
+        def deal_with_line(linesArr):
+            __finded = False
+            __last_key = None
+            __deleted_line = None
+            for line in linesArr:
+                if __finded is True:
+                    line.info = __last_key
+                    line.setText(__last_key)
+                    __last_key = chr(ord(__last_key)+1)
+                if line.info == key and __finded is False:
+                    __finded = True
+                    __last_key = key
+                    __deleted_line = line
+            else:
+                if __deleted_line in linesArr:
+                    linesArr.remove(__deleted_line)
+                    return
+
+        deal_with_line(self.__vDraglines)
+        deal_with_line(self.__hDraglines)
 
     def get_auto_grayvalue(self,l_line,r_line,up_line,dn_line):
         v_left = None
         v_right = None
         h_up = None
         h_down = None
-        for line in self.vDraglines:
+        for line in self.__vDraglines:
             key = str(line)
             if key == l_line:
                 v_left = line
             elif key == r_line:
                 v_right = line
-        for line in self.hDraglines:
+        for line in self.__hDraglines:
             key = str(line)
             if key == up_line:
                 h_up = line
