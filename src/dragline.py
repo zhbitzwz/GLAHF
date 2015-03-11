@@ -64,7 +64,7 @@ class DragLine(QtGui.QLabel):
 
     def closeEvent(self,e):
         self.__callback(self._info)
-        print "close"
+        print "%s has closed" %self.__str__
 
     def __str__(self):
         return self.info

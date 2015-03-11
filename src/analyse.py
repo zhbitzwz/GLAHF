@@ -322,14 +322,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def dropEvent(self, e):
         dragline = e.source()
         position = e.pos()
-        if dragline.TYPE == 'V':
-            position.setY(self.PREIVIEW_TOTOP)
-            dragline.xpos = (2*position.x()+self.LINE_WEIGHT)/2
-        elif dragline.TYPE == 'H':
-            position.setX(self.PREIVIEW_TOLEFT)
-            dragline.ypos = (2*position.y()+self.LINE_WEIGHT)/2
-        else:
-            raise Exception
         if position.x() < self.PREIVIEW_TOLEFT:
             position.setX(self.PREIVIEW_TOLEFT)
         elif position.x() > self.PREIVIEW_W+self.PREIVIEW_TOLEFT:
@@ -338,7 +330,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
             position.setY(self.PREIVIEW_TOTOP)
         elif position.y() > self.PREIVIEW_H+self.PREIVIEW_TOTOP:
             position.setY(self.PREIVIEW_H+self.PREIVIEW_TOTOP)
+            
+        if dragline.TYPE == 'V':
+            position.setY(self.PREIVIEW_TOTOP)
+            pos = (((2*position.x()+self.LINE_WEIGHT)/2)-self.PREIVIEW_TOLEFT)
+            dragline.xpos = pos/float(self.PREIVIEW_W)
+        elif dragline.TYPE == 'H':
+            position.setX(self.PREIVIEW_TOLEFT)
+            pos = (((2*position.y()+self.LINE_WEIGHT)/2)-self.PREIVIEW_TOTOP)
+            dragline.ypos = pos/float(self.PREIVIEW_H)
+        else:
+            raise Exception
         dragline.move(position)
+        self.get_auto_results()
         e.setDropAction(QtCore.Qt.MoveAction)
         e.accept()
 
@@ -365,9 +369,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.endpointInput.setPlaceholderText("3C")
         self.resultLabel.setText("")
         self.imgpath = path
-        img = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
-        self.label.setPixmap(img)
+        self.vis = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
+        self.label.setPixmap(self.vis)
+        self.get_auto_results()
+
+    def get_auto_results(self):
+        # from left to right
         self.get_auto_grayvalue('1','2','a','f')
+        self.get_auto_grayvalue('3','4','e','f')
+        self.get_auto_grayvalue('4','5','b','c')
+        self.get_auto_grayvalue('4','5','d','e')
+        self.get_auto_grayvalue('4','5','e','f')
+        print "--------------------------"
 
     @staticmethod
     def dealWithInp(string):
@@ -418,18 +431,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
             return
 
         if self.units is not None:
-            self.vis,self.spliced_img,value =\
+            self.spliced_img,value =\
                     faceutil.getavggrayvalue(self.imgpath,startpoint,endpoint,self.units)
         else:
-            self.vis,self.spliced_img,value =\
+            self.spliced_img,value =\
                     faceutil.getavggrayvalue(self.imgpath,startpoint,endpoint)
 
         self.resultLabel.setText(str(value))
         self.tipLabel.setText("")
 
     def getanalyse(self):
-        if self.vis is not None:
-            faceutil.showplt(self.vis,self.spliced_img)
+        if self.spliced_img is not None:
+            faceutil.showplt(self.spliced_img)
 
     def returnTo(self):
         self.units = None

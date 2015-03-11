@@ -139,7 +139,7 @@ def getavggrayvalue(path,startpoint,endpoint
 		spliced_img = splice_image(vis, startpoint, endpoint, units)
 	else:
 		spliced_img = splice_image(vis, startpoint, endpoint, None)
-	return vis,spliced_img,round(spliced_img.mean(),5)
+	return spliced_img,round(spliced_img.mean(),5)
 
 def roi_grayvalue(path,start_x,end_x,start_y,end_y):
 	vis = cv2.imread(path,0)
@@ -150,11 +150,13 @@ def roi_grayvalue(path,start_x,end_x,start_y,end_y):
 	end_x = int(end_x*width)
 	start_y = int(start_y*height)
 	end_y = int(end_y*height)
+	print start_x,end_x,start_y,end_y
+	
 	roi_img = np.zeros((end_y-start_y,end_x-start_x),np.uint8)
 	roi_img[:] = vis[start_y:end_y, start_x:end_x]
 	return round(roi_img.mean(),5)
 
-def showplt(vis,spliced_img):
+def showplt(spliced_img):
 	from matplotlib.font_manager import FontProperties
 	font = FontProperties(fname=r"c:\windows\fonts\simsun.ttc", size=14)
 	hist_full = cv2.calcHist([spliced_img],[0],None,[256],[0,256])
@@ -240,7 +242,28 @@ def markdetect(face):
 	global nose_cascade
 	global mouth_cascade
 
+	from const_val import _const
+	const = _const()
+	const.BROW_UP = 0.4
+	const.BROW_DN = 0.45
+
+	const.EYE_UP = 0.5
+	const.EYE_DN = 0.55
+	const.EYE_RT = 0.75
+
+	const.NOSE_CT = 0.7
+	const.NOSE_DN = 0.76
+	const.NOSE_CL = 0.45
+	const.NOSE_CR = 0.52
+	const.NOSE_RT = 0.54
+	const.NOSE_EXRT = 0.6
+
+	const.MOUTH_UP = 0.82
+	const.MOUTH_DN = 0.87
+
 	DARWEIGHT = 1
+
+	detect_status = True
 
 	linesArr = []
 
@@ -253,8 +276,9 @@ def markdetect(face):
 	noses_count = len(noses)
 
 	mouths = mouth_cascade.detectMultiScale(face)
-	mouths = [item for item in mouths if item[2] > real_width/8 \
-	                            and real_width/4 < (item[0]+item[2])/2 < real_width*3/4]
+	mouths = [item for item in mouths if item[2] > real_width/6 \
+	                            and real_width/3 < (2*item[0]+item[2])/2 < real_width*2/3
+	                            and item[1] > real_width/2]
 	mouths = sorted(mouths,key=lambda item:item[1])[-1:]
 	mouths_count = len(mouths)
 
@@ -265,10 +289,10 @@ def markdetect(face):
 	eyes = sorted(eyes,key=lambda item:item[0])
 	eyes_count = len(eyes)
 
-	if len(eyes) != 0:
-		for index,(ex,ey,ew,eh) in enumerate(eyes):
+	if len(eyes) == 2:
+		for idx,(ex,ey,ew,eh) in enumerate(eyes):
 			# cv2.rectangle(face,(ex,ey),(ex+ew,ey+eh),(0,255,0),DARWEIGHT)
-			if index == 0:
+			if idx == 0:
 				linesArr.append(dict(x=0,y=round((ey-eh/5)/float(real_height),3)))
 				linesArr.append(dict(x=0,y=round((ey+eh/10)/float(real_height),3)))
 
@@ -282,8 +306,22 @@ def markdetect(face):
 			# cv2.line(face,(0,ey+eh/4),(real_width,ey+eh/4),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(0,ey+eh*3/4),(real_width,ey+eh*3/4),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(ex+ew*3/4,0),(ex+ew*3/4,real_height),(255,0,0),DARWEIGHT)
+	else:
+		detect_status = False
 
-	if len(noses) != 0:
+		linesArr.append(dict(x=0,y=const.BROW_UP))
+		linesArr.append(dict(x=0,y=const.BROW_DN))
+		# cv2.line(face,(0,int(real_height*const.BROW_UP)),(real_width,int(real_height*const.BROW_UP)),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(0,int(real_height*const.BROW_DN)),(real_width,int(real_height*const.BROW_DN)),(255,0,0),DARWEIGHT)
+
+		linesArr.append(dict(x=0,y=const.EYE_UP))
+		linesArr.append(dict(x=0,y=const.EYE_DN))
+		linesArr.append(dict(x=const.EYE_RT,y=0))
+		# cv2.line(face,(0,int(real_height*const.EYE_UP)),(real_width,int(real_height*const.EYE_UP)),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(0,int(real_height*const.EYE_DN)),(real_width,int(real_height*const.EYE_DN)),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(int(real_width*const.EYE_RT),0),(int(real_width*const.EYE_RT),real_height),(255,0,0),DARWEIGHT)
+
+	if len(noses) == 1:
 		for(nx,ny,nw,nh) in noses:
 			linesArr.append(dict(x=round((nx+nw*1/3)/float(real_width),3),y=0))
 			linesArr.append(dict(x=round((nx+nw*2/3)/float(real_width),3),y=0))
@@ -292,7 +330,7 @@ def markdetect(face):
 
 			linesArr.append(dict(x=0,y=round((ny+nh/4)/float(real_height),3)))
 			linesArr.append(dict(x=0,y=round((ny+nh*3/4)/float(real_height),3)))
-			# vertical
+			# # vertical
 			# cv2.rectangle(face,(nx,ny),(nx+nw,ny+nh),(0,255,0),DARWEIGHT)
 			# cv2.line(face,(nx+nw*1/3,0),(nx+nw*1/3,real_height),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(nx+nw*2/3,0),(nx+nw*2/3,real_height),(255,0,0),DARWEIGHT)
@@ -301,16 +339,38 @@ def markdetect(face):
 			# # horizental
 			# cv2.line(face,(0,ny+nh*3/4),(real_width,ny+nh*3/4),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(0,ny+nh/4),(real_width,ny+nh/4),(255,0,0),DARWEIGHT)
+	else:
+		detect_status = False
 
-	if len(mouths) != 0:
+		linesArr.append(dict(x=const.NOSE_CL,y=0))
+		linesArr.append(dict(x=const.NOSE_CR,y=0))
+		linesArr.append(dict(x=const.NOSE_RT,y=0))
+		linesArr.append(dict(x=const.NOSE_EXRT,y=0))
+		# cv2.line(face,(int(real_width*const.NOSE_CL),0),(int(real_width*const.NOSE_CL),real_height),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(int(real_width*const.NOSE_CR),0),(int(real_width*const.NOSE_CR),real_height),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(int(real_width*const.NOSE_RT),0),(int(real_width*const.NOSE_RT),real_height),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(int(real_width*const.NOSE_EXRT),0),(int(real_width*const.NOSE_EXRT),real_height),(255,0,0),DARWEIGHT)
+
+		linesArr.append(dict(x=0,y=const.NOSE_CT))
+		linesArr.append(dict(x=0,y=const.NOSE_DN))
+		# cv2.line(face,(0,int(real_height*const.NOSE_CT)),(real_width,int(real_height*const.NOSE_CT)),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(0,int(real_height*const.NOSE_DN)),(real_width,int(real_height*const.NOSE_DN)),(255,0,0),DARWEIGHT)
+
+	if len(mouths) == 1:
 		for(mx,my,mw,mh) in mouths:
 			# cv2.rectangle(face,(mx,my),(mx+mw,my+mh),(0,255,0),DARWEIGHT)
-			pass
-		else:
 			linesArr.append(dict(x=0,y=round(my/float(real_height),3)))
 			linesArr.append(dict(x=0,y=round((my+mh*3/5)/float(real_height),3)))
 
 			# cv2.line(face,(0,my),(real_width,my),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(0,my+mh*3/5),(real_width,my+mh*3/5),(255,0,0),DARWEIGHT)
+	else:
+		detect_status = False
 
-	return linesArr,dict(eyes_count=eyes_count, noses_count=noses_count, mouths_count=mouths_count)
+		linesArr.append(dict(x=0,y=const.MOUTH_UP))
+		linesArr.append(dict(x=0,y=const.MOUTH_DN))
+
+		# cv2.line(face,(0,int(real_height*const.MOUTH_UP)),(real_width,int(real_height*const.MOUTH_UP)),(255,0,0),DARWEIGHT)
+		# cv2.line(face,(0,int(real_height*const.MOUTH_DN)),(real_width,int(real_height*const.MOUTH_DN)),(255,0,0),DARWEIGHT)
+
+	return linesArr,detect_status

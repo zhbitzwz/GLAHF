@@ -86,8 +86,8 @@ class Ui_MainWindow(QtGui.QWidget):
         self.rightLabel.setObjectName(_fromUtf8("rightLabel"))
         self.rightLabel.setScaledContents(True)
         self.dectected_label =QtGui.QLabel(self.centralwidget)
-        self.dectected_label.setGeometry(QtCore.QRect(730, 340, 40, 55))
-        
+        self.dectected_label.setGeometry(QtCore.QRect(730, 340, 80, 40))
+
         self.chooseLeftFace = QtGui.QPushButton(self.centralwidget)
         self.chooseLeftFace.setGeometry(QtCore.QRect(150, 350, 75, 23))
         self.chooseLeftFace.setObjectName(_fromUtf8("chooseLeftFace"))
@@ -140,7 +140,7 @@ class Ui_MainWindow(QtGui.QWidget):
         self.frontallcdNum = QtGui.QLCDNumber(MainWindow)
         self.frontallcdNum.setGeometry(QtCore.QRect(760, 395, 64, 23))
         self.frontallcdNum.setObjectName(_fromUtf8("rightlcdNum"))
-        
+
         self.leftlcdNum.display(1.0)
         self.frontallcdNum.display(1.0)
         self.rightlcdNum.display(1.0)
@@ -188,7 +188,7 @@ class Ui_MainWindow(QtGui.QWidget):
         self.chooseFrontalFace.setIconSize(pixmap.size())
         self.chooseFrontalFace.setFixedSize(100, 35)
         self.chooseFrontalFace.setStyleSheet(BtnStyle)
-        
+
         self.chooseRightFace.setIcon(QtGui.QIcon(pixmap))
         self.chooseRightFace.setIconSize(pixmap.size())
         self.chooseRightFace.setFixedSize(100, 35)
@@ -228,8 +228,8 @@ class Ui_MainWindow(QtGui.QWidget):
         FSCALE = value/2
         self.frontallcdNum.display(value+1)
         FRONTALTEMP = enlarge.enlargeimage(FACEAJUSTPATH,FSCALE,True)
-        self.linesArr,counts = faceutil.markdetect(FRONTALTEMP)
-        self.display_dectected_result(counts)
+        self.linesArr,status = faceutil.markdetect(FRONTALTEMP)
+        self.display_dectected_result(status)
         cv2.imwrite(FRONTALTEMPPATH,FRONTALTEMP)
         self.frontalLabel.setPixmap(QtGui.QPixmap(FRONTALTEMPPATH))
 
@@ -282,10 +282,13 @@ class Ui_MainWindow(QtGui.QWidget):
             RIGHTIMG = QtGui.QPixmap(r''+RIGHTAJUSTPATH)
             self.rightLabel.setPixmap(RIGHTIMG)
 
-    def display_dectected_result(self, d):
-        self.dectected_label.setText(_translate("MainWindow", \
-                    "眼睛:%s\n鼻子:%s \n嘴:%s\n" %(d.get("eyes_count"), \
-                                        d.get("noses_count"),d.get("mouths_count")),None))
+    def display_dectected_result(self, status):
+        if status is True:
+            word = "识别成功"
+        else:
+            word = "识别失败"
+        self.dectected_label.setText(_translate("MainWindow",word,None))
+
 
     def showFileDialog(self):
         filename = QtGui.QFileDialog.getOpenFileName(self,u'打开图片','./')
