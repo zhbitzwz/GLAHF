@@ -2,7 +2,13 @@
 from PyQt4 import QtGui,QtCore
 from PyQt4.Qt import *
 from PyQt4.QtCore import QTextCodec
+import os
 import sys
+import util
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -31,21 +37,11 @@ class Ui_Table(QtGui.QTableWidget):
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
-        count = 0
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-
-        with open('db.pkl','rb') as pkl:
-            try:
-                d = pickle.load(pkl)
-                count = len(d)
-            except:
-                pass
 
         self.setWindowTitle(self.tr("数据库"))
         self.resize(700,350)
+
+        count = len(util.db_array())
 
         self.setColumnCount(4)
         self.setRowCount(count)
@@ -57,10 +53,6 @@ class Ui_Table(QtGui.QTableWidget):
         strList.append(self.tr("删除"))
         self.setHorizontalHeaderLabels(strList)
 
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
         with open('db.pkl','rb') as pkl:
             try:
                 import os
@@ -107,15 +99,9 @@ class Ui_Table(QtGui.QTableWidget):
         self.analyseWindow.setPreview(path)
 
     def remove_button(self, row):
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
-        arr = []
+        arr = util.db_array()
         with open('db.pkl','rb') as pkl:
             try:
-                import os
-                arr = pickle.load(pkl)
                 d = arr.pop(int(row))
                 path = d.get('path')
                 if os.path.exists(path):
@@ -127,16 +113,13 @@ class Ui_Table(QtGui.QTableWidget):
                 self.clearContents()
             except:
                 pass
-        with open('db.pkl','wb') as pkl:
-            pickle.dump(arr,pkl)
-        with open('db.pkl','rb') as pkl:
-            try:
-                import os
-                arr = pickle.load(pkl)
-                for idx,d in enumerate(arr):
-                    if os.path.exists(d.get('path')):
-                        self.setRowData(idx,d.get('date'),d.get('path'),str(d.get('units')))
-                    else:
-                        self.setRowData(idx,d.get('date'),"文件已被删除")
-            except:
-                pass
+        util.direct_write_db(arr)
+        arr = util.db_array()
+        try:
+            for idx,d in enumerate(arr):
+                if os.path.exists(d.get('path')):
+                    self.setRowData(idx,d.get('date'),d.get('path'),str(d.get('units')))
+                else:
+                    self.setRowData(idx,d.get('date'),"文件已被删除")
+        except:
+            pass

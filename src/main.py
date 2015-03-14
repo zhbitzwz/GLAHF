@@ -26,7 +26,7 @@ class Ui(QtGui.QMainWindow):
 		else:
 			self.showNormal()
 
-util.updatedb()
+util.update_db()
 app = QtGui.QApplication(sys.argv)
 window = Ui()
 window.show()

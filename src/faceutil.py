@@ -75,37 +75,30 @@ def splice_image(img,startpoint,endpoint,
 								int(beginX*offwidth):int(endX*offwidth)]
 	return spliced_img
 
-def mergeImages(l,f,r,
+def dealImages(img,
 			path='./',scale_dict=None):
-	if l==None or f==None or r==None:
+	if img is None:
 		return False
-	leftImage = cv2.imread(l,0)
 	H,V,LOCK,DENOISE = loadconfig()
+
 	if LOCK is True:
-		frontalImage = adjustface(f)
+		frontalImage = adjustface(img)
 	else:
-		frontalImage = cv2.imread(f,0)
-	rightImage = cv2.imread(r,0)
-	if leftImage is None or frontalImage is None or rightImage is None:
+		frontalImage = cv2.imread(img,0)
+
+	if frontalImage is None:
 		return False
 
 	if scale_dict is not None:
 		from enlarge import enlargeimage
-		if scale_dict["LSCALE"] > 0:
-			leftImage = enlargeimage(leftImage, scale_dict["LSCALE"])
 		if scale_dict["FSCALE"] > 0:
 			frontalImage = enlargeimage(frontalImage, scale_dict["FSCALE"])
-		if scale_dict["RSCALE"] > 0:
-			rightImage = enlargeimage(rightImage, scale_dict["RSCALE"])
 
 	if DENOISE is True:
-		leftImage = cv2.GaussianBlur(leftImage,(5,5),0)
 		frontalImage = cv2.GaussianBlur(frontalImage,(5,5),0)
-		rightImage = cv2.GaussianBlur(rightImage,(5,5),0)
 	size = frontalImage.shape[:2]
-	leftImage = fixsize(leftImage,size)
-	rightImage = fixsize(rightImage,size)
-	vis = np.concatenate((leftImage, frontalImage, rightImage), axis=1)
+	vis = frontalImage
+
 	try:
 	    import cPickle as pickle
 	except ImportError:
@@ -121,6 +114,7 @@ def mergeImages(l,f,r,
 	import os
 	today = str(time.strftime("%Y-%m-%d", time.localtime()))
 	date = str(time.strftime("%Y-%m-%d %H:%M %p", time.localtime()))
+	print path
 	tardir = path+'\\'+today
 	if os.path.exists(tardir) is False:
 		os.mkdir(tardir)
@@ -293,8 +287,8 @@ def markdetect(face):
 		for idx,(ex,ey,ew,eh) in enumerate(eyes):
 			# cv2.rectangle(face,(ex,ey),(ex+ew,ey+eh),(0,255,0),DARWEIGHT)
 			if idx == 0:
-				linesArr.append(dict(x=0,y=round((ey-eh/5)/float(real_height),3)))
-				linesArr.append(dict(x=0,y=round((ey+eh/10)/float(real_height),3)))
+				linesArr.append(dict(x=0,y=round((ey-eh/4)/float(real_height),3)))
+				linesArr.append(dict(x=0,y=round((ey)/float(real_height),3)))
 
 				# cv2.line(face,(0,ey-eh/5),(real_width,ey-eh/5),(255,0,0),DARWEIGHT)
 				# cv2.line(face,(0,ey+eh/10),(real_width,ey+eh/10),(255,0,0),DARWEIGHT)

@@ -55,9 +55,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
 
         self.PREIVIEW_H = 430
-        self.PREIVIEW_W = 1260
+        self.PREIVIEW_W = 900
         self.PREIVIEW_TOTOP = 20
-        self.PREIVIEW_TOLEFT = 40
+        self.PREIVIEW_TOLEFT = 200
 
         if self.units is None:
             with open('settings.json') as jsonfile:
@@ -73,17 +73,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         hoffset = float(self.PREIVIEW_W)/H
         for i in xrange(1,V+1):
             label = QtGui.QLabel(self.centralwidget)
-            label.setGeometry(QtCore.QRect(self.PREIVIEW_TOTOP, 12+i*voffset, 15, 10))
+            label.setGeometry(QtCore.QRect(self.PREIVIEW_TOLEFT-25, 12+i*voffset, 15, 10))
             label.setText(str(i))
         else:
             self.X_VAXIS = str(i)
 
-        for i in xrange(1,H+2):
+        for i in xrange(0,H+1):
             label = QtGui.QLabel(self.centralwidget)
-            label.setGeometry(QtCore.QRect(5+i*hoffset, 0, 12, 15))
-            label.setText(str(ARR[i-1]))
+            label.setGeometry(QtCore.QRect(self.PREIVIEW_TOLEFT+i*hoffset, 0, 12, 15))
+            label.setText(str(ARR[i]))
         else:
-            self.X_HAXIS = str(ARR[i-1])
+            self.X_HAXIS = str(ARR[i])
 
         QLE_BGSTYLE = "QLineEdit{background: %s;}"
         def AutoSetText(hpos,vpos):
@@ -129,29 +129,37 @@ class Ui_MainWindow(QtGui.QMainWindow):
             def getpos(self):
             	return (self.hpos, self.vpos)
 
-        self.label = PreviewLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(40, self.PREIVIEW_TOTOP, self.PREIVIEW_W, self.PREIVIEW_H))
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Aril"))
+        font.setPointSize(36)
 
+        # 预览标签
+        self.label = PreviewLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(self.PREIVIEW_TOLEFT, self.PREIVIEW_TOTOP
+                                        ,self.PREIVIEW_W, self.PREIVIEW_H))
         self.label.setScaledContents(True)
         self.label.setObjectName(_fromUtf8("label"))
+
+        # 自动获取标签
+        self.autogetLabel = QtGui.QLabel(self.centralwidget)
+        self.autogetLabel.setGeometry(QtCore.QRect(100, 460, 201, 61))
+        self.autogetLabel.setFont(font)
+
+        # 坐标输入
         self.positionLabel = QtGui.QLabel(self.centralwidget)
-        self.positionLabel.setGeometry(QtCore.QRect(80, 450, 201, 61))
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aharoni"))
+        self.positionLabel.setGeometry(QtCore.QRect(480, 460, 201, 61))
         font.setPointSize(36)
         self.positionLabel.setFont(font)
         self.positionLabel.setObjectName(_fromUtf8("positionLabel"))
         self.startpointLabel = QtGui.QLabel(self.centralwidget)
-        self.startpointLabel.setGeometry(QtCore.QRect(120, 540, 71, 21))
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aharoni"))
+        self.startpointLabel.setGeometry(QtCore.QRect(520, 550, 71, 21))
         font.setPointSize(12)
+        # 开始坐标标签
         self.startpointLabel.setFont(font)
         self.startpointLabel.setObjectName(_fromUtf8("startpointLabel"))
+        # 结束坐标标签
         self.endpointLabel = QtGui.QLabel(self.centralwidget)
-        self.endpointLabel.setGeometry(QtCore.QRect(120, 590, 71, 21))
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aharoni"))
+        self.endpointLabel.setGeometry(QtCore.QRect(520, 600, 71, 21))
         font.setPointSize(12)
         self.endpointLabel.setFont(font)
         self.endpointLabel.setObjectName(_fromUtf8("endpointLabel"))
@@ -170,47 +178,48 @@ class Ui_MainWindow(QtGui.QMainWindow):
             def mousePressEvent(self, ev):
                 Ui_MainWindow.FOCUS = self._key
 
+        # 开始坐标输入
         self.startpointInput = InputEdit(self.centralwidget)
-        self.startpointInput.setGeometry(QtCore.QRect(200, 530, 91, 31))
+        self.startpointInput.setGeometry(QtCore.QRect(600, 540, 91, 31))
         self.startpointInput.setObjectName(_fromUtf8("startpointInput"))
         self.startpointInput.key = "start"
+        # 结束坐标输入
         self.endpointInput = InputEdit(self.centralwidget)
-        self.endpointInput.setGeometry(QtCore.QRect(200, 580, 91, 31))
+        self.endpointInput.setGeometry(QtCore.QRect(600, 590, 91, 31))
         self.endpointInput.setObjectName(_fromUtf8("endpointInput"))
         self.endpointInput.key = "end"
-
+        # 确定输入按钮
+        self.okButton = QtGui.QPushButton(self.centralwidget)
+        self.okButton.setGeometry(QtCore.QRect(600, 640, 75, 23))
+        self.okButton.setObjectName(_fromUtf8("okButton"))
+        # 平均灰度值标签
         self.grayValueLabel = QtGui.QLabel(self.centralwidget)
-        self.grayValueLabel.setGeometry(QtCore.QRect(600, 450, 241, 61))
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aharoni"))
+        self.grayValueLabel.setGeometry(QtCore.QRect(800, 460, 241, 61))
         font.setPointSize(36)
         self.grayValueLabel.setFont(font)
         self.grayValueLabel.setObjectName(_fromUtf8("grayValueLabel"))
+        # 灰度值结果标签
         self.resultLabel = QtGui.QLabel(self.centralwidget)
-        self.resultLabel.setGeometry(QtCore.QRect(870, 460, 230, 61))
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aharoni"))
+        self.resultLabel.setGeometry(QtCore.QRect(1100, 460, 230, 61))
         font.setPointSize(36)
         font.setBold(False)
         font.setWeight(50)
         self.resultLabel.setFont(font)
         self.resultLabel.setText(_fromUtf8(""))
         self.resultLabel.setObjectName(_fromUtf8("resultLabel"))
+        # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
-        self.exitButton.setGeometry(QtCore.QRect(850, 550, 210, 120))
-        font = QtGui.QFont()
+        self.exitButton.setGeometry(QtCore.QRect(1050, 550, 150, 100))
         font.setPointSize(12)
         self.exitButton.setFont(font)
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
+        # 分析按钮
         self.lookAnalyseButton = QtGui.QPushButton(self.centralwidget)
-        self.lookAnalyseButton.setGeometry(QtCore.QRect(540, 550, 210, 120))
-        font = QtGui.QFont()
+        self.lookAnalyseButton.setGeometry(QtCore.QRect(850, 550, 150, 100))
         font.setPointSize(12)
-        self.okButton = QtGui.QPushButton(self.centralwidget)
-        self.okButton.setGeometry(QtCore.QRect(220, 630, 75, 23))
-        self.okButton.setObjectName(_fromUtf8("okButton"))
+        # 提示标签
         self.tipLabel = QtGui.QLabel(self.centralwidget)
-        self.tipLabel.setGeometry(QtCore.QRect(20, 660, 550, 20))
+        self.tipLabel.setGeometry(QtCore.QRect(250, 660, 550, 20))
         self.tipLabel.setFont(font)
         self.tipLabel.setText(_fromUtf8(""))
         self.tipLabel.setObjectName(_fromUtf8("tipLabel"))
@@ -243,7 +252,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
             self.LINE_WEIGHT = 5
             for line,key in zip(VLines,VKey):
-                pos = line.get('x')*self.PREIVIEW_W/3+self.PREIVIEW_W/3+self.PREIVIEW_TOLEFT
+                pos = line.get('x')*self.PREIVIEW_W + self.PREIVIEW_TOLEFT
                 dragline = DragLine('', self, 'V')
                 dragline.setText(key)
                 dragline.info = key
@@ -349,6 +358,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "灰度值分析", None))
         self.label.setText(_translate("MainWindow", "", None))
+        self.autogetLabel.setText(_translate("MainWindow", "自动获取", None))
         self.positionLabel.setText(_translate("MainWindow", "坐标输入", None))
         self.startpointLabel.setText(_translate("MainWindow", "开始坐标", None))
         self.endpointLabel.setText(_translate("MainWindow", "结束坐标", None))
