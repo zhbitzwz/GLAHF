@@ -37,7 +37,7 @@ def insert_to_db(dict_):
 	arr = db_array()
 	arr.append(dict_)
 	direct_write_db(arr)
-	
+
 def update_db():
 	arr = []
 	if os.path.exists('db.pkl') == False:
@@ -51,6 +51,11 @@ def update_db():
 				arr.remove(d)
 	direct_write_db(arr)
 
+def get_memory():
+	with open('memory.pkl','rb') as memory_file:
+		m_linesArr = pickle.load(memory_file)
+	return m_linesArr
+
 def fn_timer(function):
 	@wraps(function)
 	def function_timer(*args, **kwargs):
@@ -60,3 +65,32 @@ def fn_timer(function):
 		print "Total time running %s: %s seconds" %(function.func_name, str(t1-t0))
 		return result
 	return function_timer
+
+def memory_study(function):
+	@wraps(function)
+	def _memory_study(*args, **kw):
+		result = function(*args,**kw)
+		linesArr = result[0]
+		status = result[1]
+		if status is False:
+			return result
+
+		if os.path.exists('memory.pkl') == False:
+			with open('memory.pkl','wb') as pkl:
+				pickle.dump(linesArr,pkl)
+		else:
+			with open('memory.pkl','rb') as memory_file:
+				m_linesArr = pickle.load(memory_file)
+				VLines = sorted([i for i in linesArr if i.get('y')==0],key=lambda x:x.get('x'))
+				HLines = sorted([i for i in linesArr if i.get('x')==0],key=lambda x:x.get('y'))
+				m_VLines = sorted([i for i in m_linesArr if i.get('y')==0],key=lambda x:x.get('x'))
+				m_HLines = sorted([i for i in m_linesArr if i.get('x')==0],key=lambda x:x.get('y'))
+			for now, memory in zip(VLines, m_VLines):
+				memory['x'] = (now.get('x')+memory.get('x'))/2
+			for now, memory in zip(HLines, m_HLines):
+				memory['y'] = (now.get('y')+memory.get('y'))/2
+			m_linesArr = m_VLines+m_HLines
+			with open('memory.pkl','wb') as memory_file:
+				pickle.dump(m_linesArr, memory_file)
+		return result
+	return _memory_study

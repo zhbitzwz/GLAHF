@@ -44,12 +44,13 @@ class Ui_MainWindow(QtGui.QWidget):
         super(Ui_MainWindow,self).__init__(parent)
         self.slideSig.connect(self.setImg)
         self.statusSig.connect(self.display_dectected_result)
+        self.filename = ""
         self.has_img = False
         self.ready = False
         self.linesArr = None
+        self.FSCALE = None
         self.success_png = QtGui.QPixmap(SUCCESS_STATUS_IMG)
         self.fail_png = QtGui.QPixmap(FAIL_STATUS_IMG)
-        self.FSCALE = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
@@ -208,8 +209,10 @@ class Ui_MainWindow(QtGui.QWidget):
             self.has_img = True
             FACEPATH = FACEPATH.encode('gbk')
             IMG = faceutil.adjustface(FACEPATH)
-            self.linesArr,counts = faceutil.markdetect(IMG)
-            self.display_dectected_result(counts)
+            self.linesArr,status = faceutil.markdetect(IMG)
+            if status == False:
+                self.linesArr = util.get_memory()
+            self.display_dectected_result(status)
             cv2.imwrite(FACE_ADJ_PATH,IMG)
             FACEIMG = QtGui.QPixmap(r''+FACE_ADJ_PATH)
             self.ready = True

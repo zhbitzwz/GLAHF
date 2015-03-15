@@ -1,13 +1,14 @@
 #-*- coding:utf-8 -*-
 
-import json
-import numpy as np
-import threading
-import math
-from matplotlib import pyplot as plt
 from enlarge import enlargeimage
+from matplotlib import pyplot as plt
 import cv2
+import json
+import math
+import numpy as np
 import sys
+import threading
+import util
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -114,7 +115,6 @@ def dealImages(img,
 	import os
 	today = str(time.strftime("%Y-%m-%d", time.localtime()))
 	date = str(time.strftime("%Y-%m-%d %H:%M %p", time.localtime()))
-	print path
 	tardir = path+'\\'+today
 	if os.path.exists(tardir) is False:
 		os.mkdir(tardir)
@@ -144,7 +144,6 @@ def roi_grayvalue(path,start_x,end_x,start_y,end_y):
 	end_x = int(end_x*width)
 	start_y = int(start_y*height)
 	end_y = int(end_y*height)
-	print start_x,end_x,start_y,end_y
 	
 	roi_img = np.zeros((end_y-start_y,end_x-start_x),np.uint8)
 	roi_img[:] = vis[start_y:end_y, start_x:end_x]
@@ -190,7 +189,6 @@ def adjustface(face):
 	                            and (2*item[1]+item[3])/2 < height*2/3]
 	eyes = sorted(eyes,key=lambda item:item[1])[:2]
 	eyes = sorted(eyes,key=lambda item:item[0])
-	print "eyes counts:",len(eyes)
 
 	if len(eyes) != 0:
 		for index,(ex,ey,ew,eh) in enumerate(eyes):
@@ -230,6 +228,7 @@ def adjustface(face):
 		print "can not match the eyes."
 	return gray
 
+@util.memory_study
 def markdetect(face):
 	global face_cascade
 	global eye_cascade
@@ -296,6 +295,7 @@ def markdetect(face):
 			linesArr.append(dict(x=0,y=round((ey+eh*3/4)/float(real_height),3)))
 			linesArr.append(dict(x=0,y=round((ey+eh/4)/float(real_height),3)))
 			linesArr.append(dict(x=round((ex+ew*3/4)/float(real_width),3),y=0))
+			linesArr.append(dict(x=round((ex+ew*3/4+real_width/5)/float(real_width),3),y=0))
 
 			# cv2.line(face,(0,ey+eh/4),(real_width,ey+eh/4),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(0,ey+eh*3/4),(real_width,ey+eh*3/4),(255,0,0),DARWEIGHT)

@@ -142,8 +142,42 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # 自动获取标签
         self.autogetLabel = QtGui.QLabel(self.centralwidget)
-        self.autogetLabel.setGeometry(QtCore.QRect(100, 460, 201, 61))
+        self.autogetLabel.setGeometry(QtCore.QRect(100, 460, 201, 40))
         self.autogetLabel.setFont(font)
+        # 特定区域标签
+        self.area_12af_Label = QtGui.QLabel(self.centralwidget)
+        self.area_12af_Label.setGeometry(QtCore.QRect(100, 500, 201, 61))
+
+        self.area_34ef_Label = QtGui.QLabel(self.centralwidget)
+        self.area_34ef_Label.setGeometry(QtCore.QRect(100, 520, 201, 61))
+
+        self.area_45bc_Label = QtGui.QLabel(self.centralwidget)
+        self.area_45bc_Label.setGeometry(QtCore.QRect(100, 540, 201, 61))
+
+        self.area_45de_Label = QtGui.QLabel(self.centralwidget)
+        self.area_45de_Label.setGeometry(QtCore.QRect(100, 560, 201, 61))
+
+        self.area_45ef_Label = QtGui.QLabel(self.centralwidget)
+        self.area_45ef_Label.setGeometry(QtCore.QRect(100, 580, 201, 61))
+
+        self.area_56ef_Label = QtGui.QLabel(self.centralwidget)
+        self.area_56ef_Label.setGeometry(QtCore.QRect(100, 600, 201, 61))
+
+        # 平均灰度值标签
+        self.grayValueLabel = QtGui.QLabel(self.centralwidget)
+        self.grayValueLabel.setGeometry(QtCore.QRect(80, 620, 180, 61))
+        font.setPointSize(18)
+        self.grayValueLabel.setFont(font)
+        self.grayValueLabel.setObjectName(_fromUtf8("grayValueLabel"))
+        # 灰度值结果标签
+        self.resultLabel = QtGui.QLabel(self.centralwidget)
+        self.resultLabel.setGeometry(QtCore.QRect(230, 620, 230, 61))
+        font.setPointSize(18)
+        font.setBold(False)
+        font.setWeight(50)
+        self.resultLabel.setFont(font)
+        self.resultLabel.setText(_fromUtf8(""))
+        self.resultLabel.setObjectName(_fromUtf8("resultLabel"))
 
         # 坐标输入
         self.positionLabel = QtGui.QLabel(self.centralwidget)
@@ -190,32 +224,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.endpointInput.key = "end"
         # 确定输入按钮
         self.okButton = QtGui.QPushButton(self.centralwidget)
-        self.okButton.setGeometry(QtCore.QRect(600, 640, 75, 23))
+        self.okButton.setGeometry(QtCore.QRect(630, 640, 75, 23))
         self.okButton.setObjectName(_fromUtf8("okButton"))
-        # 平均灰度值标签
-        self.grayValueLabel = QtGui.QLabel(self.centralwidget)
-        self.grayValueLabel.setGeometry(QtCore.QRect(800, 460, 241, 61))
-        font.setPointSize(36)
-        self.grayValueLabel.setFont(font)
-        self.grayValueLabel.setObjectName(_fromUtf8("grayValueLabel"))
-        # 灰度值结果标签
-        self.resultLabel = QtGui.QLabel(self.centralwidget)
-        self.resultLabel.setGeometry(QtCore.QRect(1100, 460, 230, 61))
-        font.setPointSize(36)
-        font.setBold(False)
-        font.setWeight(50)
-        self.resultLabel.setFont(font)
-        self.resultLabel.setText(_fromUtf8(""))
-        self.resultLabel.setObjectName(_fromUtf8("resultLabel"))
         # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
-        self.exitButton.setGeometry(QtCore.QRect(1050, 550, 150, 100))
+        self.exitButton.setGeometry(QtCore.QRect(1050, 530, 150, 100))
         font.setPointSize(12)
         self.exitButton.setFont(font)
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
         # 分析按钮
         self.lookAnalyseButton = QtGui.QPushButton(self.centralwidget)
-        self.lookAnalyseButton.setGeometry(QtCore.QRect(850, 550, 150, 100))
+        self.lookAnalyseButton.setGeometry(QtCore.QRect(850, 530, 150, 100))
         font.setPointSize(12)
         # 提示标签
         self.tipLabel = QtGui.QLabel(self.centralwidget)
@@ -242,8 +261,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.retranslateUi(MainWindow)
 
         if self.__linesArr is not None and len(self.__linesArr) != 0:
-            VLines = [i for i in self.__linesArr if i.get('y')==0 and i.get('x')>0.1]
-            HLines = [i for i in self.__linesArr if i.get('x')==0 and i.get('y')>0.1]
+            VLines = [i for i in self.__linesArr if i.get('y')==0]
+            HLines = [i for i in self.__linesArr if i.get('x')==0]
             VLines = sorted(VLines,key=lambda item:item.get('x'))
             HLines = sorted(HLines,key=lambda item:item.get('y'))
 
@@ -297,6 +316,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         deal_with_line(self.__vDraglines)
         deal_with_line(self.__hDraglines)
 
+    def get_auto_results(self):
+        # from left to right
+        f = self.get_auto_grayvalue
+        self.area_12af_Label.setText("12af:"+str(f('1','2','a','f')))
+        self.area_34ef_Label.setText("34ef:"+str(f('3','4','e','f')))
+        self.area_45bc_Label.setText("45bc:"+str(f('4','5','b','c')))
+        self.area_45de_Label.setText("45de:"+str(f('4','5','d','e')))
+        self.area_45ef_Label.setText("45ef:"+str(f('4','5','e','f')))
+        self.area_45ef_Label.setText("56ef:"+str(f('5','6','e','f')))
+        print "--------------------------"
+
     def get_auto_grayvalue(self,l_line,r_line,up_line,dn_line):
         v_left = None
         v_right = None
@@ -315,7 +345,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             elif key == dn_line:
                 h_down = line
         if v_left and v_right and h_up and h_down:
-            self.get_sp_grayvalue(v_left,v_right,h_up,h_down)
+            return self.get_sp_grayvalue(v_left,v_right,h_up,h_down)
 
     def get_sp_grayvalue(self,v_left,v_right,h_up,h_down):
         start_x = v_left.xpos
@@ -323,7 +353,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         start_y = h_up.ypos
         end_y = h_down.ypos
         grayvalue = faceutil.roi_grayvalue(self.imgpath, start_x, end_x, start_y, end_y)
-        print grayvalue
+        return grayvalue
 
     def dragEnterEvent(self, e):
         e.accept()
@@ -370,6 +400,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         BtnStyle = "QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"\
             "QPushButton:hover{border-color:green;background:transparent}"
+        self.okButton.setStyleSheet(BtnStyle)
         self.exitButton.setStyleSheet(BtnStyle)
         self.lookAnalyseButton.setStyleSheet(BtnStyle)
 
@@ -382,15 +413,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.vis = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
         self.label.setPixmap(self.vis)
         self.get_auto_results()
-
-    def get_auto_results(self):
-        # from left to right
-        self.get_auto_grayvalue('1','2','a','f')
-        self.get_auto_grayvalue('3','4','e','f')
-        self.get_auto_grayvalue('4','5','b','c')
-        self.get_auto_grayvalue('4','5','d','e')
-        self.get_auto_grayvalue('4','5','e','f')
-        print "--------------------------"
 
     @staticmethod
     def dealWithInp(string):
