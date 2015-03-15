@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtCore, QtGui
 from common import *
-import cv2
-import util
-import json
-import lookdb
+from PyQt4 import QtCore, QtGui
 import analyse
 import configdialog
-import faceutil
+import cv2
 import enlarge
+import faceutil
+import json
+import lookdb
+import threading
 import time
+import util
 
 SAVEPATH = './'
 with open('settings.json') as jsonfile:
@@ -31,22 +32,37 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
-FRONTALPATH = None
-FRONTALIMG = None
-FSCALE = None
+FACEPATH = None
+FACEIMG = None
 
 class Ui_MainWindow(QtGui.QWidget):
+    slideSig = QtCore.pyqtSignal(str)
+    statusSig = QtCore.pyqtSignal(bool)
+
+    def __init__(self
+                    ,parent=None):
+        super(Ui_MainWindow,self).__init__(parent)
+        self.slideSig.connect(self.setImg)
+        self.statusSig.connect(self.display_dectected_result)
+        self.has_img = False
+        self.ready = False
+        self.linesArr = None
+        self.success_png = QtGui.QPixmap(SUCCESS_STATUS_IMG)
+        self.fail_png = QtGui.QPixmap(FAIL_STATUS_IMG)
+        self.FSCALE = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(1350, 700)
-        self.linesArr = None
 
-        self.success_png = QtGui.QPixmap("./sys/img/success.png")
-        self.fail_png = QtGui.QPixmap("./sys/img/fail.png")
+        self.movie = QtGui.QMovie(LOADING_GIF, QtCore.QByteArray(), self)
+        self.movie.setCacheMode(QtGui.QMovie.CacheAll)
+        self.movie.setSpeed(100)
+        self.dbdialog = lookdb.Ui_Table()
+        self.settingsdialog = configdialog.Ui_Dialog()
 
         png=QtGui.QPixmap(self)
-        png.load("./sys/img/mbg.png")
+        png.load(BG_IMG)
         palette1 = QtGui.QPalette(self)
         palette1.setBrush(self.backgroundRole(), QtGui.QBrush(png))
         MainWindow.setPalette(palette1);
@@ -54,35 +70,39 @@ class Ui_MainWindow(QtGui.QWidget):
 
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        # 灰度值分析按钮
         self.analyseButton = QtGui.QPushButton(self.centralwidget)
         self.analyseButton.setEnabled(True)
         self.analyseButton.setGeometry(QtCore.QRect(70, 460, 210, 120))
         self.analyseButton.setObjectName(_fromUtf8("analyseButton"))
+        # 数据库按钮
         self.dbButton = QtGui.QPushButton(self.centralwidget)
         self.dbButton.setEnabled(True)
         self.dbButton.setGeometry(QtCore.QRect(380, 460, 210, 120))
         self.dbButton.setObjectName(_fromUtf8("dbButton"))
+        # 设置按钮
         self.settingButton = QtGui.QPushButton(self.centralwidget)
         self.settingButton.setEnabled(True)
         self.settingButton.setGeometry(QtCore.QRect(710, 460, 210, 120))
         self.settingButton.setObjectName(_fromUtf8("settingButton"))
+        # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
         self.exitButton.setEnabled(True)
         self.exitButton.setGeometry(QtCore.QRect(1020, 460, 210, 120))
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
-        self.frontalLabel = QtGui.QLabel(self.centralwidget)
-        self.frontalLabel.setGeometry(QtCore.QRect(150, 30, 450, 370))
-        self.frontalLabel.setObjectName(_fromUtf8("frontalLabel"))
-        self.frontalLabel.setScaledContents(True)
-
+        self.faceLabel = QtGui.QLabel(self.centralwidget)
+        self.faceLabel.setGeometry(QtCore.QRect(150, 30, 400, 360))
+        self.faceLabel.setObjectName(_fromUtf8("faceLabel"))
+        self.faceLabel.setScaledContents(True)
+        # 识别状态
         self.dectected_png =QtGui.QLabel(self.centralwidget)
         self.dectected_png.setGeometry(QtCore.QRect(790, 280, 120, 120))
         self.dectected_label =QtGui.QLabel(self.centralwidget)
         self.dectected_label.setGeometry(QtCore.QRect(830, 400, 80, 40))
-
-        self.chooseFrontalFace = QtGui.QPushButton(self.centralwidget)
-        self.chooseFrontalFace.setGeometry(QtCore.QRect(790, 60, 280, 100))
-        self.chooseFrontalFace.setObjectName(_fromUtf8("chooseFrontalFace"))
+        # 选择图片按钮
+        self.chooseFace = QtGui.QPushButton(self.centralwidget)
+        self.chooseFace.setGeometry(QtCore.QRect(790, 60, 280, 100))
+        self.chooseFace.setObjectName(_fromUtf8("chooseFace"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1350, 23))
@@ -91,30 +111,27 @@ class Ui_MainWindow(QtGui.QWidget):
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
+        # 缩放滑动条
+        self.scaleSlider = QtGui.QSlider(MainWindow)
+        self.scaleSlider.setGeometry(QtCore.QRect(860, 190, 160, 40))
+        self.scaleSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.scaleSlider.setObjectName(_fromUtf8("leftScale"))
+        self.scaleSlider.setRange(0, 3)
+        self.scaleSliderLabel = QtGui.QLabel(MainWindow)
+        self.scaleSliderLabel.setGeometry(QtCore.QRect(790, 200, 60, 16))
+        self.scaleSliderLabel.setObjectName(_fromUtf8("rightScaleLabel"))
+        self.scaleLcd = QtGui.QLCDNumber(MainWindow)
+        self.scaleLcd.setGeometry(QtCore.QRect(1050, 200, 64, 23))
+        self.scaleLcd.setObjectName(_fromUtf8("rightlcdNum"))
+        self.scaleLcd.display(1.0)
 
-        self.frontalScale = QtGui.QSlider(MainWindow)
-        self.frontalScale.setGeometry(QtCore.QRect(860, 190, 160, 40))
-        self.frontalScale.setOrientation(QtCore.Qt.Horizontal)
-        self.frontalScale.setObjectName(_fromUtf8("leftScale"))
-        self.frontalScale.setRange(0, 3)
-        self.frontalScaleLabel = QtGui.QLabel(MainWindow)
-        self.frontalScaleLabel.setGeometry(QtCore.QRect(790, 200, 60, 16))
-        self.frontalScaleLabel.setObjectName(_fromUtf8("rightScaleLabel"))
-
-        self.frontallcdNum = QtGui.QLCDNumber(MainWindow)
-        self.frontallcdNum.setGeometry(QtCore.QRect(1050, 200, 64, 23))
-        self.frontallcdNum.setObjectName(_fromUtf8("rightlcdNum"))
-        self.frontallcdNum.display(1.0)
-
-        self.settingsdialog = configdialog.Ui_Dialog()
-        self.dbdialog = lookdb.Ui_Table()
-        self.connect(self.frontalScale, QtCore.SIGNAL("valueChanged(int)"),self.frontalSliderChange)
+        self.connect(self.scaleSlider, QtCore.SIGNAL("valueChanged(int)"),self.SliderChange)
         self.connect(self.analyseButton,QtCore.SIGNAL('clicked()'),self.beginAnalyse)
         self.connect(self.dbButton,QtCore.SIGNAL('clicked()'),self.dbdialog.show)
         self.connect(self.settingButton,QtCore.SIGNAL('clicked()'),self.settingsdialog.show)
         self.connect(self.exitButton,QtCore.SIGNAL('clicked()'),QtGui.qApp,QtCore.SLOT('quit()'))
-        self.connect(self.chooseFrontalFace,QtCore.SIGNAL('clicked()'),self.getfrontal)
-
+        self.connect(self.chooseFace,QtCore.SIGNAL('clicked()'),self.getface)
+        self.lock = threading.Lock()
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -124,18 +141,18 @@ class Ui_MainWindow(QtGui.QWidget):
         self.dbButton.setText(_translate("MainWindow", "数据库", None))
         self.settingButton.setText(_translate("MainWindow", "设置", None))
         self.exitButton.setText(_translate("MainWindow", "退出", None))
-        self.frontalLabel.setText(_translate("MainWindow", "正脸", None))
-        self.chooseFrontalFace.setText(_translate("MainWindow", "选择正脸", None))
-        self.frontalScaleLabel.setText(_translate("Dialog", "缩放比例", None))
+        self.faceLabel.setText(_translate("MainWindow", "正脸", None))
+        self.chooseFace.setText(_translate("MainWindow", "选择正脸", None))
+        self.scaleSliderLabel.setText(_translate("Dialog", "缩放比例", None))
 
         BtnStyle = "QPushButton{border-radius:5px;background:rgb(110, 190, 10);color:white}"\
             "QPushButton:hover{background:rgb(140, 220, 35)}"
         pixmap = QtGui.QPixmap("./sys/img/power.png")
 
-        self.chooseFrontalFace.setIcon(QtGui.QIcon(pixmap))
-        self.chooseFrontalFace.setIconSize(pixmap.size())
-        self.chooseFrontalFace.setFixedSize(280, 100)
-        self.chooseFrontalFace.setStyleSheet(BtnStyle)
+        self.chooseFace.setIcon(QtGui.QIcon(pixmap))
+        self.chooseFace.setIconSize(pixmap.size())
+        self.chooseFace.setFixedSize(280, 100)
+        self.chooseFace.setStyleSheet(BtnStyle)
 
         BtnStyle = "QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"\
             "QPushButton:hover{border-color:green;background:transparent}"
@@ -150,43 +167,56 @@ class Ui_MainWindow(QtGui.QWidget):
             shadow.setOffset(2,2)
             idx.setGraphicsEffect(shadow)
 
-        self.frontalLabel.setPixmap(QtGui.QPixmap(INIT_FRONTALIMG))
+        self.faceLabel.setPixmap(QtGui.QPixmap(INIT_FACEIMG))
 
-    def frontalSliderChange(self):
-        global FSCALE
-        t0 = time.time()
-        FRONTALTEMP = None
-        value = self.frontalScale.value()
+    def loading(self):
+        self.faceLabel.setMovie(self.movie)
+        self.movie.start()
+
+    def SliderChange(self):
+        self.ready = False
+        FACETEMP = None
+        value = self.scaleSlider.value()
         value = float(value)/10
-        FSCALE = value/2
-        self.frontallcdNum.display(value+1)
-        FRONTALTEMP = enlarge.enlargeimage(FACEAJUSTPATH,FSCALE,True)
-        self.linesArr,status = faceutil.markdetect(FRONTALTEMP)
-        self.display_dectected_result(status)
-        cv2.imwrite(FRONTALTEMPPATH,FRONTALTEMP)
-        self.frontalLabel.setPixmap(QtGui.QPixmap(FRONTALTEMPPATH))
-        t4 = time.time()
-        print t1 - t0
-        print t2 - t1
-        print t3 - t2
-        print t4 - t1
+        self.FSCALE = value/2
+        self.scaleLcd.display(value+1)
+        if self.has_img == False:
+            return
+        FACETEMP = enlarge.enlargeimage(FACE_ADJ_PATH,self.FSCALE,True)
+        
+        def deal_job():
+            self.lock.acquire()
+            try:
+                self.linesArr,status = faceutil.markdetect(FACETEMP)
+                cv2.imwrite(FACE_TEMP_PATH,FACETEMP)
+                self.statusSig.emit(status)
+                self.slideSig.emit(FACE_TEMP_PATH)
+            finally:
+                self.ready = True
+                self.lock.release()
+        self.loading()
+        threading.Thread(target=deal_job).start()
 
-    def getfrontal(self):
-        global FRONTALPATH
-        global FRONTALIMG
-        FRONTALPATH = unicode(self.showFileDialog())
-        if FRONTALPATH != "":
-            FRONTALPATH = FRONTALPATH.encode('gbk')
-            IMG = faceutil.adjustface(FRONTALPATH)
+    def setImg(self, path):
+        self.faceLabel.setPixmap(QtGui.QPixmap(path))
+
+    def getface(self):
+        global FACEPATH
+        global FACEIMG
+        FACEPATH = unicode(self.showFileDialog())
+        if FACEPATH != "":
+            self.has_img = True
+            FACEPATH = FACEPATH.encode('gbk')
+            IMG = faceutil.adjustface(FACEPATH)
             self.linesArr,counts = faceutil.markdetect(IMG)
             self.display_dectected_result(counts)
-            cv2.imwrite(FACEAJUSTPATH,IMG)
-            FRONTALIMG = QtGui.QPixmap(r''+FACEAJUSTPATH)
-            global FSCALE
-            if FSCALE is not None and FSCALE >0:
-                self.frontalSliderChange()
+            cv2.imwrite(FACE_ADJ_PATH,IMG)
+            FACEIMG = QtGui.QPixmap(r''+FACE_ADJ_PATH)
+            self.ready = True
+            if self.FSCALE is not None and self.FSCALE >0:
+                self.SliderChange()
             else:
-                self.frontalLabel.setPixmap(FRONTALIMG)
+                self.faceLabel.setPixmap(FACEIMG)
 
     def display_dectected_result(self, status):
         if status is True:
@@ -204,14 +234,16 @@ class Ui_MainWindow(QtGui.QWidget):
 
     def showFileDialog(self):
         filename = QtGui.QFileDialog.getOpenFileName(self,u'打开图片','./')
-        return filename
+        if len(filename) != 0:
+            self.filename = filename
+            return filename
+        return self.filename
 
     def beginAnalyse(self):
-        global FRONTALIMG
-        if FRONTALIMG is None:
+        if self.ready is False:
             self.display_status(False, "请选择图片")
-        d = faceutil.dealImages(FRONTALPATH,SAVEPATH,
-                                    dict(FSCALE=FSCALE))
+        d = faceutil.dealImages(FACEPATH,SAVEPATH,
+                                    dict(FSCALE=self.FSCALE))
 
         if d is False:
             return
