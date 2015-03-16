@@ -1,3 +1,4 @@
+import FileDialog
 import sys
 import util
 from PyQt4.Qt import *

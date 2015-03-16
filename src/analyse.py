@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from dragline import *
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import *
-import json
 import faceutil
-from dragline import *
+import json
+import threading
+import util
 
 DICT = {chr(i-1+ord('A')):i for i in xrange(1,27)}
 
@@ -34,17 +36,21 @@ except AttributeError:
 
 class Ui_MainWindow(QtGui.QMainWindow):
     FOCUS = "start"
+    gafSig = QtCore.pyqtSignal(str)
     
     def __init__(self
             ,parent=None, units=None, linesArr=None):
         super(Ui_MainWindow, self).__init__(parent)
         Ui_MainWindow.FOCUS = "start"
-        self.vis = None
+        self.imgpath = None
         self.spliced_img = None
+        self.threshold = None
+        self.vis = None
         self.__linesArr = linesArr
         self.__vDraglines = []
         self.__hDraglines = []
         self.units = units
+        self.gafSig.connect(self.display_gaf)
         self.setupUi(self)
         self.retranslateUi(self)
 
@@ -149,19 +155,22 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.area_12af_Label.setGeometry(QtCore.QRect(100, 500, 201, 61))
 
         self.area_34ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_34ef_Label.setGeometry(QtCore.QRect(100, 520, 201, 61))
+        self.area_34ef_Label.setGeometry(QtCore.QRect(100, 515, 201, 61))
 
         self.area_45bc_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45bc_Label.setGeometry(QtCore.QRect(100, 540, 201, 61))
+        self.area_45bc_Label.setGeometry(QtCore.QRect(100, 530, 201, 61))
 
         self.area_45de_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45de_Label.setGeometry(QtCore.QRect(100, 560, 201, 61))
+        self.area_45de_Label.setGeometry(QtCore.QRect(100, 545, 201, 61))
 
         self.area_45ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45ef_Label.setGeometry(QtCore.QRect(100, 580, 201, 61))
+        self.area_45ef_Label.setGeometry(QtCore.QRect(100, 560, 201, 61))
 
         self.area_56ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_56ef_Label.setGeometry(QtCore.QRect(100, 600, 201, 61))
+        self.area_56ef_Label.setGeometry(QtCore.QRect(100, 575, 201, 61))
+
+        self.area_all_Label = QtGui.QLabel(self.centralwidget)
+        self.area_all_Label.setGeometry(QtCore.QRect(100, 590, 201, 61))
 
         # 平均灰度值标签
         self.grayValueLabel = QtGui.QLabel(self.centralwidget)
@@ -316,6 +325,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         deal_with_line(self.__vDraglines)
         deal_with_line(self.__hDraglines)
 
+    def display_gaf(self, text):
+        self.area_all_Label.setText(text)
+
+    def get_all_face_graylv(self):
+        graylv = faceutil.face_avg_graylv(self.imgpath, self.threshold)
+        self.threshold = None
+        self.gafSig.emit("average:"+str(graylv))
+
     def get_auto_results(self):
         # from left to right
         f = self.get_auto_grayvalue
@@ -325,6 +342,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.area_45de_Label.setText("45de:"+str(f('4','5','d','e')))
         self.area_45ef_Label.setText("45ef:"+str(f('4','5','e','f')))
         self.area_45ef_Label.setText("56ef:"+str(f('5','6','e','f')))
+        # threshold
+        if self.threshold == None:
+            self.threshold = f('4','5','e','f')
         print "--------------------------"
 
     def get_auto_grayvalue(self,l_line,r_line,up_line,dn_line):
@@ -413,6 +433,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.vis = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
         self.label.setPixmap(self.vis)
         self.get_auto_results()
+        threading.Thread(target=self.get_all_face_graylv).start()
 
     @staticmethod
     def dealWithInp(string):

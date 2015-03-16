@@ -74,23 +74,24 @@ def memory_study(function):
 		status = result[1]
 		if status is False:
 			return result
-
-		if os.path.exists('memory.pkl') == False:
-			with open('memory.pkl','wb') as pkl:
-				pickle.dump(linesArr,pkl)
-		else:
-			with open('memory.pkl','rb') as memory_file:
-				m_linesArr = pickle.load(memory_file)
-				VLines = sorted([i for i in linesArr if i.get('y')==0],key=lambda x:x.get('x'))
-				HLines = sorted([i for i in linesArr if i.get('x')==0],key=lambda x:x.get('y'))
-				m_VLines = sorted([i for i in m_linesArr if i.get('y')==0],key=lambda x:x.get('x'))
-				m_HLines = sorted([i for i in m_linesArr if i.get('x')==0],key=lambda x:x.get('y'))
-			for now, memory in zip(VLines, m_VLines):
-				memory['x'] = (now.get('x')+memory.get('x'))/2
-			for now, memory in zip(HLines, m_HLines):
-				memory['y'] = (now.get('y')+memory.get('y'))/2
-			m_linesArr = m_VLines+m_HLines
-			with open('memory.pkl','wb') as memory_file:
-				pickle.dump(m_linesArr, memory_file)
-		return result
+		try:
+			if os.path.exists('memory.pkl') == False:
+				with open('memory.pkl','wb') as pkl:
+					pickle.dump(linesArr,pkl)
+			else:
+				with open('memory.pkl','rb') as memory_file:
+					m_linesArr = pickle.load(memory_file)
+					VLines = sorted([i for i in linesArr if i.get('y')==0],key=lambda x:x.get('x'))
+					HLines = sorted([i for i in linesArr if i.get('x')==0],key=lambda x:x.get('y'))
+					m_VLines = sorted([i for i in m_linesArr if i.get('y')==0],key=lambda x:x.get('x'))
+					m_HLines = sorted([i for i in m_linesArr if i.get('x')==0],key=lambda x:x.get('y'))
+				for now, memory in zip(VLines, m_VLines):
+					memory['x'] = (now.get('x')+memory.get('x'))/2
+				for now, memory in zip(HLines, m_HLines):
+					memory['y'] = (now.get('y')+memory.get('y'))/2
+				m_linesArr = m_VLines+m_HLines
+				with open('memory.pkl','wb') as memory_file:
+					pickle.dump(m_linesArr, memory_file)
+		finally:
+			return result
 	return _memory_study

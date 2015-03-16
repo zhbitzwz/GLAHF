@@ -23,7 +23,7 @@ data_files= [
 ]
 
 setup(name = "Gray Level Analyse Of Human Face",
-      version = "1.0",
+      version = "2.2.0",
       windows=["main.py"],
       zipfile = None,
       options={"py2exe":py2exe_options},

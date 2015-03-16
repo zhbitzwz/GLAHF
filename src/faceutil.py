@@ -17,7 +17,7 @@ V = 40
 LOCK = False
 DENOISE = False
 
-# face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye_tree_eyeglasses.xml')
 nose_cascade = cv2.CascadeClassifier('haarcascade_mcs_nose.xml')
 mouth_cascade = cv2.CascadeClassifier('haarcascade_mcs_mouth.xml')
@@ -227,6 +227,34 @@ def adjustface(face):
 	else:
 		print "can not match the eyes."
 	return gray
+
+def face_avg_graylv(path, th):
+	global face_cascade
+	global nose_cascade
+	print path
+	img = cv2.imread(path)
+	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+
+	height, width = img.shape[:2]
+	faces = face_cascade.detectMultiScale(img, 1.3, 5)
+	face = [f for f in faces if f[2]>width/3 and f[3]>height/3]
+	if len(face) == 1:
+		for (x,y,w,h) in face:
+			roi_gray = gray[y:y+h, x:x+w]
+			# roi_color = img[y:y+h, x:x+w]
+		gray = roi_gray
+	# filter
+	(_, thresh) = cv2.threshold(gray, th+th*0.2, 255, cv2.THRESH_TOZERO_INV)
+	(_, thresh) = cv2.threshold(thresh, th-th*0.2, 255, cv2.THRESH_TOZERO)
+
+	sums = 0
+	count = 0
+	for i in xrange(len(thresh)):
+	    for j in thresh.__getitem__(i):
+	        if j != 0:
+	            sums = sums + j
+	            count += 1
+	return sums/count 
 
 @util.memory_study
 def markdetect(face):
