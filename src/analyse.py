@@ -92,6 +92,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.X_HAXIS = str(ARR[i])
 
         QLE_BGSTYLE = "QLineEdit{background: %s;}"
+        # 自动输入
         def AutoSetText(hpos,vpos):
             global ARR
             _self = self
@@ -105,7 +106,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 else:
                     _self.endpointInput.setText(pos)
                     _self.endpointInput.setStyleSheet(QLE_BGSTYLE %color)
-
+                    
         def AutoSetBack():
             _self = self
             if Ui_MainWindow.FOCUS is not None:
@@ -148,7 +149,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # 自动获取标签
         self.autogetLabel = QtGui.QLabel(self.centralwidget)
-        self.autogetLabel.setGeometry(QtCore.QRect(100, 460, 201, 40))
+        self.autogetLabel.setGeometry(QtCore.QRect(100, 470, 201, 40))
         self.autogetLabel.setFont(font)
         # 特定区域标签
         self.area_12af_Label = QtGui.QLabel(self.centralwidget)
@@ -223,12 +224,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # 开始坐标输入
         self.startpointInput = InputEdit(self.centralwidget)
-        self.startpointInput.setGeometry(QtCore.QRect(600, 540, 91, 31))
+        self.startpointInput.setGeometry(QtCore.QRect(600, 545, 91, 31))
         self.startpointInput.setObjectName(_fromUtf8("startpointInput"))
         self.startpointInput.key = "start"
         # 结束坐标输入
         self.endpointInput = InputEdit(self.centralwidget)
-        self.endpointInput.setGeometry(QtCore.QRect(600, 590, 91, 31))
+        self.endpointInput.setGeometry(QtCore.QRect(600, 595, 91, 31))
         self.endpointInput.setObjectName(_fromUtf8("endpointInput"))
         self.endpointInput.key = "end"
         # 确定输入按钮
@@ -268,7 +269,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.setAcceptDrops(True)
 
         self.retranslateUi(MainWindow)
-
         if self.__linesArr is not None and len(self.__linesArr) != 0:
             VLines = [i for i in self.__linesArr if i.get('y')==0]
             HLines = [i for i in self.__linesArr if i.get('x')==0]
@@ -329,9 +329,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.area_all_Label.setText(text)
 
     def get_all_face_graylv(self):
-        graylv = faceutil.face_avg_graylv(self.imgpath, self.threshold)
-        self.threshold = None
-        self.gafSig.emit("average:"+str(graylv))
+        if self.threshold is not None:
+            graylv = faceutil.face_avg_graylv(self.imgpath, self.threshold)
+            self.threshold = None
+            self.gafSig.emit("average:"+str(graylv))
 
     def get_auto_results(self):
         # from left to right

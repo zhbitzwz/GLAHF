@@ -59,13 +59,13 @@ class Ui_Table(QtGui.QTableWidget):
                 arr = pickle.load(pkl)
                 for idx,d in enumerate(arr):
                     if os.path.exists(d.get('path')):
-                        self.setRowData(idx,d.get('date'),d.get('path'),str(d.get('units')))
+                        self.setRowData(idx,d.get('date'),d.get('path'),d.get('units'),d.get('linesArr'))
                     else:
                         self.setRowData(idx,d.get('date'),"文件已被删除")
             except:
                 pass
 
-    def setRowData(self, row, date, path, units):
+    def setRowData(self, row, date, path, units, linesArr):
         dateLabel = QtGui.QLabel()
         dateLabel.setText(date)
         self.setCellWidget(row, 0, dateLabel)
@@ -76,24 +76,24 @@ class Ui_Table(QtGui.QTableWidget):
         self.setCellWidget(row, 1, pathLabel)
         self.setColumnWidth(1, 350)
 
+        BtnStyle = "QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"\
+            "QPushButton:hover{border-color:green;background:transparent}"
         analyseButton = QtGui.QPushButton()
         analyseButton.setText(_translate("Ui_Table","查看分析",None))
-        analyseButton.setStyleSheet("QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"
-            "QPushButton:hover{border-color:green;background:transparent}")
+        analyseButton.setStyleSheet(BtnStyle)
         self.setCellWidget(row, 2, analyseButton)
 
         deleteButton = QtGui.QPushButton()
         deleteButton.setText(_translate("Ui_Table","删除",None))
-        deleteButton.setStyleSheet("QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"
-            "QPushButton:hover{border-color:green;background:transparent}")
+        deleteButton.setStyleSheet(BtnStyle)
         self.setCellWidget(row, 3, deleteButton)
 
         deleteButton.clicked.connect(lambda: self.remove_button(row))
-        analyseButton.clicked.connect(lambda: self.on_button(path,units))
+        analyseButton.clicked.connect(lambda: self.on_button(path,units,linesArr))
 
-    def on_button(self, path, units):
+    def on_button(self, path, units, linesArr):
         import analyse
-        self.analyseWindow = analyse.Ui_MainWindow(None, eval(units))
+        self.analyseWindow = analyse.Ui_MainWindow(units=units,linesArr=linesArr)
         self.analyseWindow.show()
         self.close()
         self.analyseWindow.setPreview(path)
@@ -118,7 +118,7 @@ class Ui_Table(QtGui.QTableWidget):
         try:
             for idx,d in enumerate(arr):
                 if os.path.exists(d.get('path')):
-                    self.setRowData(idx,d.get('date'),d.get('path'),str(d.get('units')))
+                    self.setRowData(idx,d.get('date'),d.get('path'),d.get('units'),d.get('linesArr'))
                 else:
                     self.setRowData(idx,d.get('date'),"文件已被删除")
         except:

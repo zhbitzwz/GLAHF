@@ -17,7 +17,6 @@ SAVEPATH = './'
 with open('settings.json') as jsonfile:
     SAVEPATH = json.load(jsonfile)['savedir']
 
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -251,11 +250,12 @@ class Ui_MainWindow(QtGui.QWidget):
         if d is False:
             return
         else:
+            d['linesArr'] = self.linesArr
             util.insert_to_db(d)
             id = int(d.get('id'))-1
             self.dbdialog.insertRow(id)
-            self.dbdialog.setRowData(id, d.get('date'), d.get('path'), str(d.get('units')))
-        self.analysewindow = analyse.Ui_MainWindow(None,None,self.linesArr)
+            self.dbdialog.setRowData(id, d.get('date'), d.get('path'), d.get('units'), d.get('linesArr'))
+        self.analysewindow = analyse.Ui_MainWindow(linesArr=self.linesArr)
         self.analysewindow.show()
         self.analysewindow.setPreview(d.get('path'))
 

@@ -53,7 +53,7 @@ def update_db():
 
 def get_memory():
 	with open('memory.pkl','rb') as memory_file:
-		m_linesArr = pickle.load(memory_file)
+		m_linesArr = pickle.load(memory_file)[0]
 	return m_linesArr
 
 def fn_timer(function):
@@ -77,21 +77,21 @@ def memory_study(function):
 		try:
 			if os.path.exists('memory.pkl') == False:
 				with open('memory.pkl','wb') as pkl:
-					pickle.dump(linesArr,pkl)
+					pickle.dump((linesArr,1),pkl)
 			else:
 				with open('memory.pkl','rb') as memory_file:
-					m_linesArr = pickle.load(memory_file)
+					m_linesArr,count = pickle.load(memory_file)
 					VLines = sorted([i for i in linesArr if i.get('y')==0],key=lambda x:x.get('x'))
 					HLines = sorted([i for i in linesArr if i.get('x')==0],key=lambda x:x.get('y'))
 					m_VLines = sorted([i for i in m_linesArr if i.get('y')==0],key=lambda x:x.get('x'))
 					m_HLines = sorted([i for i in m_linesArr if i.get('x')==0],key=lambda x:x.get('y'))
 				for now, memory in zip(VLines, m_VLines):
-					memory['x'] = (now.get('x')+memory.get('x'))/2
+					memory['x'] = (now.get('x')+memory.get('x')*count)/(count+1)
 				for now, memory in zip(HLines, m_HLines):
-					memory['y'] = (now.get('y')+memory.get('y'))/2
+					memory['y'] = (now.get('y')+memory.get('y')*count)/(count+1)
 				m_linesArr = m_VLines+m_HLines
 				with open('memory.pkl','wb') as memory_file:
-					pickle.dump(m_linesArr, memory_file)
+					pickle.dump((m_linesArr,count+1), memory_file)
 		finally:
 			return result
 	return _memory_study
