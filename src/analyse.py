@@ -60,6 +60,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
 
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Microsoft YaHei"))
+
         self.PREIVIEW_H = 430
         self.PREIVIEW_W = 900
         self.PREIVIEW_TOTOP = 20
@@ -136,10 +139,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
             def getpos(self):
             	return (self.hpos, self.vpos)
 
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Aril"))
-        font.setPointSize(36)
-
         # 预览标签
         self.label = PreviewLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(self.PREIVIEW_TOLEFT, self.PREIVIEW_TOTOP
@@ -150,39 +149,54 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # 自动获取标签
         self.autogetLabel = QtGui.QLabel(self.centralwidget)
         self.autogetLabel.setGeometry(QtCore.QRect(100, 470, 201, 40))
+        font.setPointSize(28)
         self.autogetLabel.setFont(font)
+
         # 特定区域标签
+        __area2lt = 120
         self.area_12af_Label = QtGui.QLabel(self.centralwidget)
-        self.area_12af_Label.setGeometry(QtCore.QRect(100, 500, 201, 61))
+        self.area_12af_Label.setGeometry(QtCore.QRect(__area2lt, 500, 201, 61))
 
         self.area_34ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_34ef_Label.setGeometry(QtCore.QRect(100, 515, 201, 61))
+        self.area_34ef_Label.setGeometry(QtCore.QRect(__area2lt, 515, 201, 61))
 
         self.area_45bc_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45bc_Label.setGeometry(QtCore.QRect(100, 530, 201, 61))
+        self.area_45bc_Label.setGeometry(QtCore.QRect(__area2lt, 530, 201, 61))
 
         self.area_45de_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45de_Label.setGeometry(QtCore.QRect(100, 545, 201, 61))
+        self.area_45de_Label.setGeometry(QtCore.QRect(__area2lt, 545, 201, 61))
 
         self.area_45ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_45ef_Label.setGeometry(QtCore.QRect(100, 560, 201, 61))
+        self.area_45ef_Label.setGeometry(QtCore.QRect(__area2lt, 560, 201, 61))
 
         self.area_56ef_Label = QtGui.QLabel(self.centralwidget)
-        self.area_56ef_Label.setGeometry(QtCore.QRect(100, 575, 201, 61))
+        self.area_56ef_Label.setGeometry(QtCore.QRect(__area2lt, 575, 201, 61))
 
         self.area_all_Label = QtGui.QLabel(self.centralwidget)
-        self.area_all_Label.setGeometry(QtCore.QRect(100, 590, 201, 61))
+        self.area_all_Label.setGeometry(QtCore.QRect(__area2lt, 590, 201, 61))
+
+        # 框线
+        frameStyle = "border:1px solid lightgray;border-radius:5px;opacity:0.5;"
+        self.frameLabel1 = QtGui.QWidget(self.centralwidget)
+        self.frameLabel1.setGeometry(QtCore.QRect(50, 460, 350, 210))
+        self.frameLabel1.setStyleSheet(frameStyle)
+        self.frameLabel2 = QtGui.QWidget(self.centralwidget)
+        self.frameLabel2.setGeometry(QtCore.QRect(450, 460, 350, 210))
+        self.frameLabel2.setStyleSheet(frameStyle)
+        self.frameLabel3 = QtGui.QWidget(self.centralwidget)
+        self.frameLabel3.setGeometry(QtCore.QRect(840, 460, 480, 210))
+        self.frameLabel3.setStyleSheet(frameStyle)
 
         # 平均灰度值标签
         self.grayValueLabel = QtGui.QLabel(self.centralwidget)
-        self.grayValueLabel.setGeometry(QtCore.QRect(80, 620, 180, 61))
-        font.setPointSize(18)
+        self.grayValueLabel.setGeometry(QtCore.QRect(1040, 480, 250, 61))
+        font.setPointSize(32)
         self.grayValueLabel.setFont(font)
         self.grayValueLabel.setObjectName(_fromUtf8("grayValueLabel"))
         # 灰度值结果标签
         self.resultLabel = QtGui.QLabel(self.centralwidget)
-        self.resultLabel.setGeometry(QtCore.QRect(230, 620, 230, 61))
-        font.setPointSize(18)
+        self.resultLabel.setGeometry(QtCore.QRect(1080, 550, 240, 80))
+        font.setPointSize(24)
         font.setBold(False)
         font.setWeight(50)
         self.resultLabel.setFont(font)
@@ -192,21 +206,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # 坐标输入
         self.positionLabel = QtGui.QLabel(self.centralwidget)
         self.positionLabel.setGeometry(QtCore.QRect(480, 460, 201, 61))
-        font.setPointSize(36)
+        font.setPointSize(28)
         self.positionLabel.setFont(font)
         self.positionLabel.setObjectName(_fromUtf8("positionLabel"))
-        self.startpointLabel = QtGui.QLabel(self.centralwidget)
-        self.startpointLabel.setGeometry(QtCore.QRect(520, 550, 71, 21))
-        font.setPointSize(12)
-        # 开始坐标标签
-        self.startpointLabel.setFont(font)
-        self.startpointLabel.setObjectName(_fromUtf8("startpointLabel"))
-        # 结束坐标标签
-        self.endpointLabel = QtGui.QLabel(self.centralwidget)
-        self.endpointLabel.setGeometry(QtCore.QRect(520, 600, 71, 21))
-        font.setPointSize(12)
-        self.endpointLabel.setFont(font)
-        self.endpointLabel.setObjectName(_fromUtf8("endpointLabel"))
 
         class InputEdit(QtGui.QLineEdit):
             def __init(self, parent):
@@ -222,30 +224,43 @@ class Ui_MainWindow(QtGui.QMainWindow):
             def mousePressEvent(self, ev):
                 Ui_MainWindow.FOCUS = self._key
 
+        # 开始坐标标签
+        self.startpointLabel = QtGui.QLabel(self.centralwidget)
+        self.startpointLabel.setGeometry(QtCore.QRect(510, 545, 71, 21))
+        font.setPointSize(12)
+        self.startpointLabel.setFont(font)
+        self.startpointLabel.setObjectName(_fromUtf8("startpointLabel"))
+        # 结束坐标标签
+        self.endpointLabel = QtGui.QLabel(self.centralwidget)
+        self.endpointLabel.setGeometry(QtCore.QRect(510, 595, 71, 21))
+        self.endpointLabel.setFont(font)
+        self.endpointLabel.setObjectName(_fromUtf8("endpointLabel"))
         # 开始坐标输入
         self.startpointInput = InputEdit(self.centralwidget)
-        self.startpointInput.setGeometry(QtCore.QRect(600, 545, 91, 31))
+        self.startpointInput.setGeometry(QtCore.QRect(590, 545, 91, 31))
         self.startpointInput.setObjectName(_fromUtf8("startpointInput"))
         self.startpointInput.key = "start"
         # 结束坐标输入
         self.endpointInput = InputEdit(self.centralwidget)
-        self.endpointInput.setGeometry(QtCore.QRect(600, 595, 91, 31))
+        self.endpointInput.setGeometry(QtCore.QRect(590, 595, 91, 31))
         self.endpointInput.setObjectName(_fromUtf8("endpointInput"))
         self.endpointInput.key = "end"
+        
         # 确定输入按钮
         self.okButton = QtGui.QPushButton(self.centralwidget)
-        self.okButton.setGeometry(QtCore.QRect(630, 640, 75, 23))
+        self.okButton.setGeometry(QtCore.QRect(705, 595, 75, 23))
         self.okButton.setObjectName(_fromUtf8("okButton"))
+        font.setPointSize(10)
+        self.okButton.setFont(font)
         # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
-        self.exitButton.setGeometry(QtCore.QRect(1050, 530, 150, 100))
+        self.exitButton.setGeometry(QtCore.QRect(870, 575, 120, 80))
         font.setPointSize(12)
         self.exitButton.setFont(font)
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
         # 分析按钮
         self.lookAnalyseButton = QtGui.QPushButton(self.centralwidget)
-        self.lookAnalyseButton.setGeometry(QtCore.QRect(850, 530, 150, 100))
-        font.setPointSize(12)
+        self.lookAnalyseButton.setGeometry(QtCore.QRect(870, 475, 120, 80))
         # 提示标签
         self.tipLabel = QtGui.QLabel(self.centralwidget)
         self.tipLabel.setGeometry(QtCore.QRect(250, 660, 550, 20))
@@ -326,13 +341,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         deal_with_line(self.__hDraglines)
 
     def display_gaf(self, text):
-        self.area_all_Label.setText(text)
+        self.area_all_Label.setText(_translate("MainWindow","平均灰度值:%s" %text, None))
 
     def get_all_face_graylv(self):
         if self.threshold is not None:
             graylv = faceutil.face_avg_graylv(self.imgpath, self.threshold)
             self.threshold = None
-            self.gafSig.emit("average:"+str(graylv))
+            self.gafSig.emit(str(graylv))
 
     def get_auto_results(self):
         # from left to right
@@ -413,23 +428,24 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.positionLabel.setText(_translate("MainWindow", "坐标输入", None))
         self.startpointLabel.setText(_translate("MainWindow", "开始坐标", None))
         self.endpointLabel.setText(_translate("MainWindow", "结束坐标", None))
-        self.grayValueLabel.setText(_translate("MainWindow", "平均灰度值", None))
+        self.grayValueLabel.setText(_translate("MainWindow", "区域灰度值:", None))
+        self.resultLabel.setText(_translate("MainWindow", "[点确定以\n获取结果]", None))
         self.exitButton.setText(_translate("MainWindow", "返回", None))
         self.lookAnalyseButton.setText(_translate("MainWindow", "查看分析", None))
         self.okButton.setText(_translate("MainWindow", "确定", None))
         self.tipLabel.setText(_translate("MainWindow", "", None))
 
-        BtnStyle = "QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"\
-            "QPushButton:hover{border-color:green;background:transparent}"
-        self.okButton.setStyleSheet(BtnStyle)
-        self.exitButton.setStyleSheet(BtnStyle)
-        self.lookAnalyseButton.setStyleSheet(BtnStyle)
+        self.okButton.setStyleSheet("QPushButton{border:1px solid lightgray;background:rgb(230,230,230)}"\
+            "QPushButton:hover{border-color:green;background:transparent}")
+        self.exitButton.setStyleSheet("QPushButton{border-radius:5px;background:rgb(220, 20, 60);color:white}"\
+            "QPushButton:hover{background:rgb(205, 92, 92)}")
+        self.lookAnalyseButton.setStyleSheet("QPushButton{border-radius:5px;background:rgb(70,130,180);color:white}"\
+            "QPushButton:hover{background:rgb(95, 158, 160)}")
 
 
     def setPreview(self,path):
         self.startpointInput.setPlaceholderText("0A")
         self.endpointInput.setPlaceholderText("3C")
-        self.resultLabel.setText("")
         self.imgpath = path
         self.vis = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
         self.label.setPixmap(self.vis)

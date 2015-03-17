@@ -55,6 +55,9 @@ class Ui_MainWindow(QtGui.QWidget):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(1350, 700)
 
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Microsoft YaHei"))
+
         self.movie = QtGui.QMovie(LOADING_GIF, QtCore.QByteArray(), self)
         self.movie.setCacheMode(QtGui.QMovie.CacheAll)
         self.movie.setSpeed(100)
@@ -70,26 +73,32 @@ class Ui_MainWindow(QtGui.QWidget):
 
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
+        font.setPointSize(12)
         # 灰度值分析按钮
         self.analyseButton = QtGui.QPushButton(self.centralwidget)
         self.analyseButton.setEnabled(True)
         self.analyseButton.setGeometry(QtCore.QRect(70, 460, 210, 120))
         self.analyseButton.setObjectName(_fromUtf8("analyseButton"))
+        self.analyseButton.setFont(font)
         # 数据库按钮
         self.dbButton = QtGui.QPushButton(self.centralwidget)
         self.dbButton.setEnabled(True)
         self.dbButton.setGeometry(QtCore.QRect(380, 460, 210, 120))
         self.dbButton.setObjectName(_fromUtf8("dbButton"))
+        self.dbButton.setFont(font)
         # 设置按钮
         self.settingButton = QtGui.QPushButton(self.centralwidget)
         self.settingButton.setEnabled(True)
         self.settingButton.setGeometry(QtCore.QRect(710, 460, 210, 120))
         self.settingButton.setObjectName(_fromUtf8("settingButton"))
+        self.settingButton.setFont(font)
         # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
         self.exitButton.setEnabled(True)
         self.exitButton.setGeometry(QtCore.QRect(1020, 460, 210, 120))
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
+        self.exitButton.setFont(font)
+        # 预览框
         self.faceLabel = QtGui.QLabel(self.centralwidget)
         self.faceLabel.setGeometry(QtCore.QRect(150, 30, 400, 360))
         self.faceLabel.setObjectName(_fromUtf8("faceLabel"))
@@ -103,6 +112,9 @@ class Ui_MainWindow(QtGui.QWidget):
         self.chooseFace = QtGui.QPushButton(self.centralwidget)
         self.chooseFace.setGeometry(QtCore.QRect(790, 60, 280, 100))
         self.chooseFace.setObjectName(_fromUtf8("chooseFace"))
+        font.setPointSize(18)
+        self.chooseFace.setFont(font)
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1350, 23))
@@ -120,6 +132,8 @@ class Ui_MainWindow(QtGui.QWidget):
         self.scaleSliderLabel = QtGui.QLabel(MainWindow)
         self.scaleSliderLabel.setGeometry(QtCore.QRect(790, 200, 60, 16))
         self.scaleSliderLabel.setObjectName(_fromUtf8("rightScaleLabel"))
+        font.setPointSize(10)
+        self.scaleSliderLabel.setFont(font)
         self.scaleLcd = QtGui.QLCDNumber(MainWindow)
         self.scaleLcd.setGeometry(QtCore.QRect(1050, 200, 64, 23))
         self.scaleLcd.setObjectName(_fromUtf8("rightlcdNum"))

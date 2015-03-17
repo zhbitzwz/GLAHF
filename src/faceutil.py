@@ -323,7 +323,7 @@ def markdetect(face):
 			linesArr.append(dict(x=0,y=round((ey+eh*3/4)/float(real_height),3)))
 			linesArr.append(dict(x=0,y=round((ey+eh/4)/float(real_height),3)))
 			linesArr.append(dict(x=round((ex+ew*3/4)/float(real_width),3),y=0))
-			linesArr.append(dict(x=round((ex+ew*3/4+real_width/5)/float(real_width),3),y=0))
+			linesArr.append(dict(x=round((ex+ew*3/4+real_width/6)/float(real_width),3),y=0))
 
 			# cv2.line(face,(0,ey+eh/4),(real_width,ey+eh/4),(255,0,0),DARWEIGHT)
 			# cv2.line(face,(0,ey+eh*3/4),(real_width,ey+eh*3/4),(255,0,0),DARWEIGHT)
@@ -339,6 +339,8 @@ def markdetect(face):
 		linesArr.append(dict(x=0,y=const.EYE_UP))
 		linesArr.append(dict(x=0,y=const.EYE_DN))
 		linesArr.append(dict(x=const.EYE_RT,y=0))
+		linesArr.append(dict(x=const.EYE_RT+1.0/6,y=0))
+
 		# cv2.line(face,(0,int(real_height*const.EYE_UP)),(real_width,int(real_height*const.EYE_UP)),(255,0,0),DARWEIGHT)
 		# cv2.line(face,(0,int(real_height*const.EYE_DN)),(real_width,int(real_height*const.EYE_DN)),(255,0,0),DARWEIGHT)
 		# cv2.line(face,(int(real_width*const.EYE_RT),0),(int(real_width*const.EYE_RT),real_height),(255,0,0),DARWEIGHT)
