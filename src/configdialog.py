@@ -122,13 +122,13 @@ class Ui_Dialog(QtGui.QDialog):
         self.hposCount.setGeometry(QtCore.QRect(90, 70, 250, 20))
         self.hposCount.setOrientation(QtCore.Qt.Horizontal)
         self.hposCount.setObjectName(_fromUtf8("hposCount"))
-        self.hposCount.setRange(2, 50)
+        self.hposCount.setRange(2, 80)
 
         self.vposCount = QtGui.QSlider(Dialog)
         self.vposCount.setGeometry(QtCore.QRect(90, 100, 250, 20))
         self.vposCount.setOrientation(QtCore.Qt.Horizontal)
         self.vposCount.setObjectName(_fromUtf8("hposCount"))
-        self.vposCount.setRange(2, 50)
+        self.vposCount.setRange(2, 80)
 
         self.hposCountLcd = QtGui.QLineEdit(Dialog)
         self.hposCountLcd.setGeometry(QtCore.QRect(350, 70, 40, 20))

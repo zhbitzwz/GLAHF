@@ -13,7 +13,7 @@ def init_config():
 		file = open('settings.json','w')
 		savedir = os.path.abspath(os.path.dirname(sys.argv[0])).replace('\\','\\\\')+'\\\image'
 		d = '''{"lockeyes": true, "denoise": false, "savedir": \"%s\",
-							"vposcount": "40", "hposcount": "50"}''' %savedir
+							"vposcount": "60", "hposcount": "80"}''' %savedir
 		file.write(d)
 		file.close()
 

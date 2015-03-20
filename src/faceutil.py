@@ -228,10 +228,35 @@ def adjustface(face):
 		print "can not match the eyes."
 	return gray
 
+def grayToPseudo(gray_val):
+    R = G = B = None
+    flag = gray_val / 64
+    if flag == 0:
+        R = 0
+        G = gray_val * 4
+        B = 255
+    elif flag == 1:
+        R = 0
+        G = 255
+        B = 511 - gray_val * 4
+    elif flag == 2:
+        R = gray_val * 4 - 511
+        G = 255
+        B = 0
+    elif flag == 3:
+        R = 255
+        G = 1023 - gray_val * 4
+        B = 0
+    else:
+        print "Exception"
+    if R is None or G is None or B is None:
+        return None
+    return (R,G,B)
+
 def face_avg_graylv(path, th):
 	global face_cascade
 	global nose_cascade
-	print path
+    
 	img = cv2.imread(path)
 	gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 

@@ -53,8 +53,10 @@ class Ui_MainWindow(QtGui.QWidget):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(1350, 700)
-
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        GLOBAL_WIDTH = screen.width()
+        GLOBAL_HEIGHT = screen.height()
+        self.resize(GLOBAL_WIDTH, GLOBAL_HEIGHT)
         font = QtGui.QFont()
         font.setFamily(_fromUtf8("Microsoft YaHei"))
 
@@ -64,11 +66,11 @@ class Ui_MainWindow(QtGui.QWidget):
         self.dbdialog = lookdb.Ui_Table()
         self.settingsdialog = configdialog.Ui_Dialog()
 
-        png=QtGui.QPixmap(self)
+        png = QtGui.QPixmap(self)
         png.load(BG_IMG)
-        palette1 = QtGui.QPalette(self)
-        palette1.setBrush(self.backgroundRole(), QtGui.QBrush(png))
-        MainWindow.setPalette(palette1);
+        palette = QtGui.QPalette(self)
+        palette.setBrush(self.backgroundRole(), QtGui.QBrush(png))
+        MainWindow.setPalette(palette);
         MainWindow.setAutoFillBackground(True)
 
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -76,66 +78,55 @@ class Ui_MainWindow(QtGui.QWidget):
         font.setPointSize(12)
         # 灰度值分析按钮
         self.analyseButton = QtGui.QPushButton(self.centralwidget)
-        self.analyseButton.setEnabled(True)
-        self.analyseButton.setGeometry(QtCore.QRect(70, 460, 210, 120))
+        self.analyseButton.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.1, GLOBAL_HEIGHT*0.6, 210, 120))
         self.analyseButton.setObjectName(_fromUtf8("analyseButton"))
         self.analyseButton.setFont(font)
         # 数据库按钮
         self.dbButton = QtGui.QPushButton(self.centralwidget)
-        self.dbButton.setEnabled(True)
-        self.dbButton.setGeometry(QtCore.QRect(380, 460, 210, 120))
+        self.dbButton.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.3, GLOBAL_HEIGHT*0.6, 210, 120))
         self.dbButton.setObjectName(_fromUtf8("dbButton"))
         self.dbButton.setFont(font)
         # 设置按钮
         self.settingButton = QtGui.QPushButton(self.centralwidget)
-        self.settingButton.setEnabled(True)
-        self.settingButton.setGeometry(QtCore.QRect(710, 460, 210, 120))
+        self.settingButton.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.5, GLOBAL_HEIGHT*0.6, 210, 120))
         self.settingButton.setObjectName(_fromUtf8("settingButton"))
         self.settingButton.setFont(font)
         # 退出按钮
         self.exitButton = QtGui.QPushButton(self.centralwidget)
-        self.exitButton.setEnabled(True)
-        self.exitButton.setGeometry(QtCore.QRect(1020, 460, 210, 120))
+        self.exitButton.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.7, GLOBAL_HEIGHT*0.6, 210, 120))
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
         self.exitButton.setFont(font)
         # 预览框
         self.faceLabel = QtGui.QLabel(self.centralwidget)
-        self.faceLabel.setGeometry(QtCore.QRect(150, 30, 400, 360))
+        self.faceLabel.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.12, GLOBAL_HEIGHT*0.05, 400, 360))
         self.faceLabel.setObjectName(_fromUtf8("faceLabel"))
         self.faceLabel.setScaledContents(True)
         # 识别状态
         self.dectected_png =QtGui.QLabel(self.centralwidget)
-        self.dectected_png.setGeometry(QtCore.QRect(790, 280, 120, 120))
+        self.dectected_png.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.6, GLOBAL_HEIGHT*0.35, 120, 120))
         self.dectected_label =QtGui.QLabel(self.centralwidget)
-        self.dectected_label.setGeometry(QtCore.QRect(830, 400, 80, 40))
+        self.dectected_label.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.63, GLOBAL_HEIGHT*0.5, 80, 40))
         # 选择图片按钮
         self.chooseFace = QtGui.QPushButton(self.centralwidget)
-        self.chooseFace.setGeometry(QtCore.QRect(790, 60, 280, 100))
+        self.chooseFace.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.6, GLOBAL_HEIGHT*0.08, 280, 100))
         self.chooseFace.setObjectName(_fromUtf8("chooseFace"))
         font.setPointSize(18)
         self.chooseFace.setFont(font)
 
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1350, 23))
-        self.menubar.setObjectName(_fromUtf8("menubar"))
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtGui.QStatusBar(MainWindow)
-        self.statusbar.setObjectName(_fromUtf8("statusbar"))
-        MainWindow.setStatusBar(self.statusbar)
         # 缩放滑动条
+        self.scaleSliderLabel = QtGui.QLabel(MainWindow)
+        self.scaleSliderLabel.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.6, GLOBAL_HEIGHT*0.3, 60, 16))
+        self.scaleSliderLabel.setObjectName(_fromUtf8("rightScaleLabel"))
         self.scaleSlider = QtGui.QSlider(MainWindow)
-        self.scaleSlider.setGeometry(QtCore.QRect(860, 190, 160, 40))
+        self.scaleSlider.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.6+70, GLOBAL_HEIGHT*0.29, 160, 40))
         self.scaleSlider.setOrientation(QtCore.Qt.Horizontal)
         self.scaleSlider.setObjectName(_fromUtf8("leftScale"))
         self.scaleSlider.setRange(0, 3)
-        self.scaleSliderLabel = QtGui.QLabel(MainWindow)
-        self.scaleSliderLabel.setGeometry(QtCore.QRect(790, 200, 60, 16))
-        self.scaleSliderLabel.setObjectName(_fromUtf8("rightScaleLabel"))
         font.setPointSize(10)
         self.scaleSliderLabel.setFont(font)
         self.scaleLcd = QtGui.QLCDNumber(MainWindow)
-        self.scaleLcd.setGeometry(QtCore.QRect(1050, 200, 64, 23))
+        self.scaleLcd.setGeometry(QtCore.QRect(GLOBAL_WIDTH*0.6+250, GLOBAL_HEIGHT*0.3, 64, 23))
         self.scaleLcd.setObjectName(_fromUtf8("rightlcdNum"))
         self.scaleLcd.display(1.0)
 
@@ -162,7 +153,6 @@ class Ui_MainWindow(QtGui.QWidget):
         BtnStyle = "QPushButton{border-radius:5px;background:rgb(110, 190, 10);color:white}"\
             "QPushButton:hover{background:rgb(140, 220, 35)}"
         pixmap = QtGui.QPixmap("./sys/img/power.png")
-
         self.chooseFace.setIcon(QtGui.QIcon(pixmap))
         self.chooseFace.setIconSize(pixmap.size())
         self.chooseFace.setFixedSize(280, 100)

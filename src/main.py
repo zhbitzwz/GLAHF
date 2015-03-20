@@ -15,6 +15,7 @@ class Ui(QtGui.QMainWindow):
 		self.ui = container.Ui_MainWindow()
 		self.setMouseTracking(True)
 		self.ui.setupUi(self)
+		self.showMax()
 
 	def mouseDoubleClickEvent(self, e):
 		self.showMax()
