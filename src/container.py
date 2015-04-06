@@ -14,7 +14,7 @@ import time
 import util
 
 SAVEPATH = './'
-with open('settings.json') as jsonfile:
+with open(SETTING_FILE) as jsonfile:
     SAVEPATH = json.load(jsonfile)['savedir']
 
 try:
@@ -214,7 +214,9 @@ class Ui_MainWindow(QtGui.QWidget):
             IMG = faceutil.adjustface(FACEPATH)
             self.linesArr,status = faceutil.markdetect(IMG)
             if status == False:
-                self.linesArr = util.get_memory()
+                m = util.get_memory()
+                if m is not None and isinstance(m,list):
+                    self.linesArr = m
             self.display_dectected_result(status)
             cv2.imwrite(FACE_ADJ_PATH,IMG)
             FACEIMG = QtGui.QPixmap(r''+FACE_ADJ_PATH)
@@ -226,9 +228,9 @@ class Ui_MainWindow(QtGui.QWidget):
 
     def display_dectected_result(self, status):
         if status is True:
-            self.display_status(True, "识别成功")
+            self.display_status(True, u"识别成功")
         else:
-            self.display_status(False, "识别失败")
+            self.display_status(False, u"识别失败")
 
     def display_status(self, status, word):
         if status is True:
@@ -247,7 +249,7 @@ class Ui_MainWindow(QtGui.QWidget):
 
     def beginAnalyse(self):
         if self.ready is False:
-            self.display_status(False, "请选择图片")
+            self.display_status(False, u"请选择图片")
         d = faceutil.dealImages(FACEPATH,SAVEPATH,
                                     dict(FSCALE=self.FSCALE))
 

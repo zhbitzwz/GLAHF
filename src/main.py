@@ -10,23 +10,23 @@ from PyQt4 import QtCore, QtGui
 import container
 
 class Ui(QtGui.QMainWindow):
-	def __init__(self, parent=None):
-		super(Ui, self).__init__(parent)
-		self.ui = container.Ui_MainWindow()
-		self.setMouseTracking(True)
-		self.ui.setupUi(self)
-		self.showMax()
+    def __init__(self, parent=None):
+        super(Ui, self).__init__(parent)
+        self.ui = container.Ui_MainWindow()
+        self.setMouseTracking(True)
+        self.ui.setupUi(self)
+        self.showMax()
 
-	def mouseDoubleClickEvent(self, e):
-		self.showMax()
-		self.emit(SIGNAL("showMax()"))
+    def mouseDoubleClickEvent(self, e):
+        self.showMax()
+        self.emit(SIGNAL("showMax()"))
 
-	@pyqtSlot()	
-	def showMax(self):
-		if not self.isMaximized():
-			self.showMaximized()
-		else:
-			self.showNormal()
+    @pyqtSlot()    
+    def showMax(self):
+        if not self.isMaximized():
+            self.showMaximized()
+        else:
+            self.showNormal()
 
 util.update_db()
 app = QtGui.QApplication(sys.argv)

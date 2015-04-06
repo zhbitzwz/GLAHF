@@ -145,6 +145,20 @@ class Ui_MainWindow(QtGui.QMainWindow):
             def getpos(self):
             	return (self.hpos, self.vpos)
 
+        class InputEdit(QtGui.QLineEdit):
+            def __init(self, parent):
+                QtGui.QLineEdit.__init__(self,parent)
+
+            @property
+            def key(self):
+                return self._key
+            @key.setter
+            def key(self, value):
+                self._key = value
+
+            def mousePressEvent(self, ev):
+                Ui_MainWindow.FOCUS = self._key
+
         # 底部布局
         self.bottomLayoutWidget = QtGui.QWidget(self.centralwidget)
         self.bottomLayoutWidget.setGeometry(QtCore.QRect(0, GLOBAL_HEIGHT*0.6, GLOBAL_WIDTH-10, GLOBAL_HEIGHT*0.3))
@@ -161,7 +175,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # 自动获取标签
         self.autogetLabel = QtGui.QLabel(self.centralwidget)
-        font.setPointSize(20)
+        font.setPointSize(18)
         self.autogetLabel.setFont(font)
 
         self.area_12af_Label = QtGui.QLabel(self.centralwidget)
@@ -238,26 +252,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.resultLabel.setFont(font)
         self.resultLabel.setText(_fromUtf8(""))
         self.resultLabel.setObjectName(_fromUtf8("resultLabel"))
+        # 灰度结果
+        self.area_sp_Color = QtGui.QLabel(self.centralwidget)
 
         # 坐标输入
         self.positionLabel = QtGui.QLabel(self.centralwidget)
-        font.setPointSize(20)
+        font.setPointSize(18)
         self.positionLabel.setFont(font)
         self.positionLabel.setObjectName(_fromUtf8("positionLabel"))
-
-        class InputEdit(QtGui.QLineEdit):
-            def __init(self, parent):
-                QtGui.QLineEdit.__init__(self,parent)
-
-            @property
-            def key(self):
-                return self._key
-            @key.setter
-            def key(self, value):
-                self._key = value
-
-            def mousePressEvent(self, ev):
-                Ui_MainWindow.FOCUS = self._key
 
         # 开始坐标标签
         self.startpointLabel = QtGui.QLabel(self.centralwidget)
@@ -276,6 +278,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.endpointInput = InputEdit(self.centralwidget)
         self.endpointInput.setObjectName(_fromUtf8("endpointInput"))
         self.endpointInput.key = "end"
+
+        # 提示标签
+        self.tipLabel = QtGui.QLabel(self.centralwidget)
+        self.tipLabel.setFont(font)
+        self.tipLabel.setText(_fromUtf8(""))
+        self.tipLabel.setObjectName(_fromUtf8("tipLabel"))
         
         # 确定输入按钮
         self.okButton = QtGui.QPushButton(self.centralwidget)
@@ -291,6 +299,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.endpointLabel.setMargin(10)
         self.inputLayout.addWidget(self.frameLabel2, 0, 0, 5, 3)
         self.inputLayout.addWidget(self.positionLabel, 0, 0, 2, 1)
+        self.inputLayout.addWidget(self.tipLabel, 0, 1, 2, 1)
         self.inputLayout.addWidget(self.startpointLabel, 2, 0, 1, 1)
         self.inputLayout.addWidget(self.endpointLabel, 3, 0, 1, 1)
         self.inputLayout.addWidget(self.startpointInput, 2, 1, 1, 1)
@@ -306,25 +315,25 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.exitButton.setObjectName(_fromUtf8("exitButton"))
         # 分析按钮
         self.lookAnalyseButton = QtGui.QPushButton(self.centralwidget)
-
+        
         self.rightLayout = QtGui.QGridLayout()
         self.rightLayout.setObjectName(_fromUtf8("rightLayout"))
         self.rightLayout.addWidget(self.frameLabel3, 0, 0, 4, 2)
-        self.rightLayout.addWidget(self.lookAnalyseButton, 0, 0)
-        self.rightLayout.addWidget(self.grayValueLabel, 0, 1)
-        self.rightLayout.addWidget(self.exitButton, 1, 0)
-        self.rightLayout.addWidget(self.resultLabel, 1, 1)
+        self.rightLayout.addWidget(self.lookAnalyseButton, 0, 0, 1, 1)
+        self.rightLayout.addWidget(self.exitButton, 1, 0, 1, 1)
+
+        self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.addWidget(self.grayValueLabel)
+        self.verticalLayout.addWidget(self.resultLabel)
+        self.verticalLayout.addWidget(self.area_sp_Color)
+        self.rightLayout.addLayout(self.verticalLayout, 0, 1, 2, 1)
 
         self.bottomLayout.addLayout(self.rightLayout)
         self.bottomLayout.setStretch(0,1)
         self.bottomLayout.setStretch(1,1)
         self.bottomLayout.setStretch(2,1)
 
-        # 提示标签
-        self.tipLabel = QtGui.QLabel(self.centralwidget)
-        self.tipLabel.setFont(font)
-        self.tipLabel.setText(_fromUtf8(""))
-        self.tipLabel.setObjectName(_fromUtf8("tipLabel"))
+
         self.lookAnalyseButton.setFont(font)
         self.lookAnalyseButton.setObjectName(_fromUtf8("lookAnalyseButton"))
         MainWindow.setCentralWidget(self.centralwidget)
@@ -395,7 +404,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def get_all_face_graylv(self):
         if self.threshold is not None:
-            graylv = faceutil.face_avg_graylv(self.imgpath, self.threshold)
+            graylv = faceutil.fave_avg_glv(self.imgpath)
             self.threshold = None
             self.gafSig.emit(str(graylv))
 
@@ -506,6 +515,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.lookAnalyseButton.setText(_translate("MainWindow", "查看分析", None))
         self.okButton.setText(_translate("MainWindow", "确定", None))
         self.tipLabel.setText(_translate("MainWindow", "", None))
+        self.area_all_Label.setText(_translate("MainWindow", "灰度值计算中...", None))
 
         self.okButton.setStyleSheet("QPushButton{border:1px solid lightgray;height:100%;\
             margin-bottom:10px;background:rgb(230,230,230)}"\
@@ -524,7 +534,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.vis = QtGui.QPixmap(r''+path[:-4]+'_preview.jpg')
         self.label.setPixmap(self.vis)
         self.get_auto_results()
-        threading.Thread(target=self.get_all_face_graylv).start()
+        t = threading.Thread(target=self.get_all_face_graylv)
+        t.setDaemon(True)
+        t.start()
 
     @staticmethod
     def dealWithInp(string):
@@ -558,7 +570,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         import re
         regexp = '^[\d]{1,2}[\A-Z]{1,2}$'
-        if len(re.findall(regexp,starttext))==0 or len(re.findall(regexp,endtext))==0:
+        c = re.compile(regexp)
+        if len(re.findall(c,starttext))==0 or len(re.findall(c,endtext))==0:
             tip = "输入格式有误,坐标格式:[纵坐标+横坐标(大写字母)],如5U,28AA"
             self.tipLabel.setText(_translate("MainWindow", tip, None))
             return
@@ -582,6 +595,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     faceutil.getavggrayvalue(self.imgpath,startpoint,endpoint)
 
         self.resultLabel.setText(str(value))
+        pesudo = faceutil.grayToPseudo(int(value))
+        self.area_sp_Color.setStyleSheet("margin:20px 10px;background-color:rgb%s;" %str(pesudo))
+
         self.tipLabel.setText("")
 
     def getanalyse(self):

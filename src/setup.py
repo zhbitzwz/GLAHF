@@ -11,6 +11,7 @@ py2exe_options = {"includes": ["decimal","sip","matplotlib.backends","dateutil",
 			"compressed": 1,"optimize": 2,"ascii": 0}
 
 data_files= [
+(r'cascades',glob.glob(r'.\cascades\*.*')),
 (r'Temp',glob.glob(r'.\Temp\*.*')),
 (r'image',glob.glob(r'.\image\*.*')),
 (r'sys\img',glob.glob(r'.\sys\img\*.*')),

@@ -111,11 +111,8 @@ class Ui_Dialog(QtGui.QDialog):
         self.vposCountLabel = QtGui.QLabel(Dialog)
         self.vposCountLabel.setGeometry(QtCore.QRect(10, 100, 91, 16))
         self.vposCountLabel.setObjectName(_fromUtf8("vposCountLabel"))
-        self.clearVoice = QtGui.QCheckBox(Dialog)
-        self.clearVoice.setGeometry(QtCore.QRect(10, 130, 71, 16))
-        self.clearVoice.setObjectName(_fromUtf8("clearVoice"))
         self.lockEyes = QtGui.QCheckBox(Dialog)
-        self.lockEyes.setGeometry(QtCore.QRect(10, 160, 71, 16))
+        self.lockEyes.setGeometry(QtCore.QRect(10, 130, 71, 16))
         self.lockEyes.setObjectName(_fromUtf8("lockEyes"))
 
         self.hposCount = QtGui.QSlider(Dialog)
@@ -160,7 +157,6 @@ class Ui_Dialog(QtGui.QDialog):
         self.saveDirLabel.setText(_translate("Dialog", "图片存放路径", None))
         self.hposCountLabel.setText(_translate("Dialog", "水平坐标数量", None))
         self.vposCountLabel.setText(_translate("Dialog", "垂直坐标数量", None))
-        self.clearVoice.setText(_translate("Dialog", "背景去噪", None))
         self.lockEyes.setText(_translate("Dialog", "瞳孔锁定", None))
         self.chooseSaveDir.setText(_translate("Dialog", "选择路径", None))
 
@@ -171,7 +167,6 @@ class Ui_Dialog(QtGui.QDialog):
             self.config['hposcount'] = hpcount
         if vpcount.isdigit():
             self.config['vposcount'] = vpcount
-        self.config['denoise'] = self.clearVoice.isChecked()
         self.config['lockeyes'] = self.lockEyes.isChecked()
         self.config['savedir'] = str(self.saveDir.text())
         with open('settings.json','w') as settings:
@@ -202,5 +197,4 @@ class Ui_Dialog(QtGui.QDialog):
         self.saveDir.setText(self.config['savedir'])
         self.hposCount.setValue(int(self.config['hposcount']))
         self.vposCount.setValue(int(self.config['vposcount']))
-        self.clearVoice.setChecked(self.config['denoise'])
         self.lockEyes.setChecked(self.config['lockeyes'])
