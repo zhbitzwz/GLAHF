@@ -35,6 +35,9 @@ FACEPATH = None
 FACEIMG = None
 
 class Ui_MainWindow(QtGui.QWidget):
+    '''
+    界面主窗口
+    '''
     slideSig = QtCore.pyqtSignal(str)
     statusSig = QtCore.pyqtSignal(bool)
 
@@ -174,10 +177,16 @@ class Ui_MainWindow(QtGui.QWidget):
         self.faceLabel.setPixmap(QtGui.QPixmap(INIT_FACEIMG))
 
     def loading(self):
+        '''
+        加载载入动画。
+        '''
         self.faceLabel.setMovie(self.movie)
         self.movie.start()
 
     def SliderChange(self):
+        '''
+        滑动条发送变化时，处理图片的放大/缩小。
+        '''
         self.ready = False
         FACETEMP = None
         value = self.scaleSlider.value()
@@ -205,6 +214,9 @@ class Ui_MainWindow(QtGui.QWidget):
         self.faceLabel.setPixmap(QtGui.QPixmap(path))
 
     def getface(self):
+        '''
+        获取选择的图片，并对图片进行处理和写入到临时目录。
+        '''
         global FACEPATH
         global FACEIMG
         FACEPATH = unicode(self.showFileDialog())
@@ -212,6 +224,7 @@ class Ui_MainWindow(QtGui.QWidget):
             self.has_img = True
             FACEPATH = FACEPATH.encode('gbk')
             IMG = faceutil.adjustface(FACEPATH)
+            IMG = faceutil.clahe(IMG)
             self.linesArr,status = faceutil.markdetect(IMG)
             if status == False:
                 m = util.get_memory()
@@ -227,12 +240,18 @@ class Ui_MainWindow(QtGui.QWidget):
                 self.faceLabel.setPixmap(FACEIMG)
 
     def display_dectected_result(self, status):
+        '''
+        显示人脸识别的结果。
+        '''
         if status is True:
             self.display_status(True, u"识别成功")
         else:
             self.display_status(False, u"识别失败")
 
     def display_status(self, status, word):
+        '''
+        显示人脸识别的状态（图片）。
+        '''
         if status is True:
             self.dectected_png.setPixmap(self.success_png)
         else:
@@ -241,6 +260,9 @@ class Ui_MainWindow(QtGui.QWidget):
 
 
     def showFileDialog(self):
+        '''
+        显示上传文件的对话框。
+        '''
         filename = QtGui.QFileDialog.getOpenFileName(self,u'打开图片','./')
         if len(filename) != 0:
             self.filename = filename
@@ -248,9 +270,12 @@ class Ui_MainWindow(QtGui.QWidget):
         return self.filename
 
     def beginAnalyse(self):
+        '''
+        对图片进行灰度值分析，并写入pickle数据库。
+        '''
         if self.ready is False:
             self.display_status(False, u"请选择图片")
-        d = faceutil.dealImages(FACEPATH,SAVEPATH,
+        d = faceutil.dealImages(FACE_ADJ_PATH,SAVEPATH,
                                     dict(FSCALE=self.FSCALE))
 
         if d is False:

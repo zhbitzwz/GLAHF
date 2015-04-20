@@ -21,6 +21,11 @@ eye_cascade = cv2.CascadeClassifier('./cascades/haarcascade_eye_tree_eyeglasses.
 nose_cascade = cv2.CascadeClassifier('./cascades/haarcascade_mcs_nose.xml')
 mouth_cascade = cv2.CascadeClassifier('./cascades/haarcascade_mcs_mouth.xml')
 
+def clahe(img):
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    cl = clahe.apply(img)
+    return cl
+
 def loadconfig():
     global H
     global V
@@ -68,6 +73,7 @@ def splice_image(img,startpoint,endpoint,
                                 int(beginX*offwidth):int(endX*offwidth)]
     return spliced_img
 
+# @util.memorize(43200)
 def dealImages(img,
             path='./',scale_dict=None):
     if img is None:
@@ -251,6 +257,7 @@ def fave_avg_glv(path):
 
     return img.mean()
 
+# @util.fn_timer
 @util.memory_study
 def markdetect(face):
     global face_cascade
@@ -260,22 +267,22 @@ def markdetect(face):
 
     from const_val import _const
     const = _const()
-    const.BROW_UP = 0.4
-    const.BROW_DN = 0.45
+    const.BROW_UP = 0.3
+    const.BROW_DN = 0.35
 
-    const.EYE_UP = 0.5
-    const.EYE_DN = 0.55
+    const.EYE_UP = 0.4
+    const.EYE_DN = 0.45
     const.EYE_RT = 0.75
 
-    const.NOSE_CT = 0.7
-    const.NOSE_DN = 0.76
+    const.NOSE_CT = 0.6
+    const.NOSE_DN = 0.66
     const.NOSE_CL = 0.45
     const.NOSE_CR = 0.52
     const.NOSE_RT = 0.54
     const.NOSE_EXRT = 0.6
 
-    const.MOUTH_UP = 0.82
-    const.MOUTH_DN = 0.87
+    const.MOUTH_UP = 0.72
+    const.MOUTH_DN = 0.80
 
     DARWEIGHT = 1
 
@@ -292,9 +299,8 @@ def markdetect(face):
     noses_count = len(noses)
 
     mouths = mouth_cascade.detectMultiScale(face)
-    mouths = [item for item in mouths if item[2] > real_width/6 \
-                                and real_width/3 < (2*item[0]+item[2])/2 < real_width*2/3
-                                and item[1] > real_width/2]
+    mouths = [item for item in mouths if real_width/3 < (2*item[0]+item[2])/2 < real_width*2/3
+                                and item[1] > real_height/2]
     mouths = sorted(mouths,key=lambda item:item[1])[-1:]
     mouths_count = len(mouths)
 
@@ -304,6 +310,8 @@ def markdetect(face):
     eyes = sorted(eyes,key=lambda item:item[1])[:2]
     eyes = sorted(eyes,key=lambda item:item[0])
     eyes_count = len(eyes)
+
+    # print "noses:",noses_count, "mouth:",mouths_count, "eyes:",eyes_count
 
     if len(eyes) == 2:
         for idx,(ex,ey,ew,eh) in enumerate(eyes):
